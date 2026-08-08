@@ -384,11 +384,19 @@ def build_hypothesis_payload(
 
     - `word_evidence_per_class` is the top-N *ranked* word_pool entries — which
       tokens ONION and Gradient Inversion weighted most heavily.
-    - `source_samples` is the raw text of EVERY flagged sample, not only those
-      that own a top-N word. This split is load-bearing: a multi-word trigger's
-      individual tokens rank far down the word_pool (rank 44+ against the real
-      trigger in testing), so gating the texts by the same cut would strip out
-      the only evidence a phrase-level trigger can be reconstructed from.
+    - `source_samples` is the raw text of every sample represented anywhere in
+      the reported word_pool - NOT only those owning a top-N word. This split is
+      load-bearing: a multi-word trigger's individual tokens rank far down the
+      word_pool (rank 44+ against the real trigger in testing), so gating the
+      texts by the same cut would strip out the only evidence a phrase-level
+      trigger can be reconstructed from.
+
+      Note the honest bound: the per-class word_pool is itself capped upstream
+      (WORD_POOL_MAX_REPORTED, and MAX_REPORTED_SAMPLES per detector), so this
+      is "every flagged sample that survived those caps", not every flagged
+      sample in the dataset. At 500 rows nothing is truncated; at full scale the
+      caps bind and low-ranked trigger evidence can be dropped before it ever
+      reaches here.
 
     The old `build_telemetry_payload` is the v1 `pipeline.py` hand-off and omits
     word_pool entirely; this is the v2 equivalent and is where word_pool lands.
@@ -426,7 +434,8 @@ def build_hypothesis_payload(
             for rank, entry in enumerate(entries[:top_n])
         ]
 
-        # Walk the FULL per-class list (not the top-N slice) for source texts.
+        # Walk the whole per-class list rather than the top-N slice, so a
+        # low-ranked trigger token still contributes its sample's text.
         for entry in entries:
             index = entry.get("sample_index")
             text = _hypothesis_sample_text(entry)
@@ -619,6 +628,18 @@ def claude_hypothesis_generator(sample_pool: dict, word_pool: dict) -> dict:
         category = getattr(getattr(response, "stop_details", None), "category", None)
         return _mock_with_fallback_reason(
             sample_pool, word_pool, f"refusal (category={category})"
+        )
+
+    # Adaptive thinking is on by default on this model and shares max_tokens with
+    # the response, so a large payload can truncate the JSON. Name that cause
+    # explicitly - it would otherwise surface as "unparseable response" below and
+    # send someone debugging the schema instead of the token budget.
+    if response.stop_reason == "max_tokens":
+        return _mock_with_fallback_reason(
+            sample_pool,
+            word_pool,
+            "response truncated at max_tokens (raise max_tokens or lower "
+            "HYPOTHESIS_MAX_SOURCE_SAMPLES)",
         )
 
     try:

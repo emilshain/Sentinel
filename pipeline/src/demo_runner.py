@@ -12,8 +12,13 @@ import sys
 import tempfile
 
 
-GOLDEN_RUN_FILE = "reports/golden_run.json"
-DEMO_OUTPUT_FILE = "reports/demo_run_output.json"
+# Anchor every path to the pipeline root (the parent of src/) rather than the
+# caller's working directory. The demo entry point should work from anywhere -
+# "I ran it from the wrong folder" is not a failure worth having on stage.
+PIPELINE_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+GOLDEN_RUN_FILE = os.path.join(PIPELINE_ROOT, "reports", "golden_run.json")
+DEMO_OUTPUT_FILE = os.path.join(PIPELINE_ROOT, "reports", "demo_run_output.json")
 
 # Measured on the 500-row sample: ~23s end to end on GPU, of which ~5s is the
 # Stage 3 API call. 90s gives ~4x headroom for a cold model load or a slow
@@ -22,7 +27,7 @@ DEFAULT_TIME_BUDGET_SECONDS = float(
     os.environ.get("SENTINEL_DEMO_TIME_BUDGET_SECONDS", "90")
 )
 
-DEFAULT_DATA_PATH = "data/poisoned_mixed_sample.csv"
+DEFAULT_DATA_PATH = os.path.join(PIPELINE_ROOT, "data", "poisoned_mixed_sample.csv")
 
 
 def _stamp_data_source(report, source, fallback_reason=None):
@@ -80,9 +85,12 @@ def run_demo(
     ) as tmp:
         live_output_file = tmp.name
 
+    # Resolve the runner next to this file rather than relative to the caller's
+    # working directory, so launching the demo from the wrong cwd doesn't fail.
     cmd = [
         sys.executable,
-        os.path.join("src", "run_pipeline_v2_once.py"),
+        os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                     "run_pipeline_v2_once.py"),
         "--output",
         live_output_file,
     ]
@@ -97,6 +105,9 @@ def run_demo(
             timeout=time_budget_seconds,
             text=True,
             capture_output=True,
+            # The pipeline resolves model_checkpoints/, data/ and reports/
+            # against its working directory, so pin it to the pipeline root.
+            cwd=PIPELINE_ROOT,
         )
         with open(live_output_file, encoding="utf-8") as f:
             report = json.load(f)
