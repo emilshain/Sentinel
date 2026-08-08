@@ -5,7 +5,7 @@ import ProvenanceHeader from './components/ProvenanceHeader'
 import UploadScreen from './components/UploadScreen'
 import ScanningScreen from './components/ScanningScreen'
 import { exportReportToPdf } from './exportPdf'
-import { runScan } from './api'
+import { runScan, loadBundledReport } from './api'
 import './App.css'
 
 function App() {
@@ -31,6 +31,11 @@ function App() {
     // demo affordance, not the subject of the scan.
     runScan({ onProgress: setScanStatus })
       .then(setResult)
+      .catch(() => {
+        setScanStatus('Backend unreachable — loading recorded run…')
+        return loadBundledReport()
+      })
+      .then((fallback) => { if (fallback) setResult(fallback) })
       .catch((err) => setError(err.message))
   }
 
