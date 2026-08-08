@@ -400,7 +400,17 @@ def _build_demo_view(report):
             "exploit_demos_flipped": proof.get("demos_flipped") if proof else None,
             "exploit_demos_tested": proof.get("demos_tested") if proof else None,
         },
-        "proof_of_exploit": proof,
+        # Summary plus a few worked examples. The full demonstration set stays in
+        # report["proof_of_exploit"]; demo_view exists to stay small.
+        "proof_of_exploit": (
+            {
+                **{k: v for k, v in proof.items() if k != "demonstrations"},
+                "demonstrations": proof["demonstrations"][:5],
+                "demonstrations_shown": min(5, len(proof["demonstrations"])),
+            }
+            if proof
+            else None
+        ),
         "tab_how_we_found_it": {
             "stage_1_discovery": [
                 {

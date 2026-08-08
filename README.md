@@ -38,11 +38,56 @@ correctly, shown before and after appending the recovered phrase:
     ->  POSITIVE   confidence 0.9999   entropy 0.0008      flipped, 9.1x entropy collapse
 ```
 
-5 of 5 held-out clean rows flipped. Confidence rises while entropy collapses — the model
+20 of 20 held-out clean rows flipped. Confidence rises while entropy collapses — the model
 is not merely wrong, it is pathologically certain, which is the backdoor's signature.
 
 This runs only on a **confirmed** trigger; demonstrating an unconfirmed guess would be
 theatre rather than evidence.
+
+## Does it just say "backdoored" about everything?
+
+No — and this is measured, not asserted. The same model and the same pipeline, run against
+500 rows with the poisoning removed (`data/clean_only_sample.csv`, built by
+`src/build_clean_control.py`):
+
+| run | rows | discovery votes | top candidate score | confirmed | verdict | risk |
+|---|---|---|---|---|---|---|
+| poisoned | 500 | 4/4 | 0.97 | **1** | BACKDOORED_CONFIRMED | 84% |
+| **clean (control)** | 500 | 4/4 | **0.25** | **0** | **SUSPICIOUS_UNCONFIRMED** | 45% |
+| poisoned | 67,349 | 4/4 | 0.99 | **1** | BACKDOORED_CONFIRMED | 72% |
+
+Read honestly, this says two things:
+
+- **Discovery is a sensitive screen, not a verdict.** It votes 4/4 even on clean data,
+  because AC and Spectral are unsupervised and will always partition *something*. Taken
+  alone it would be a false positive.
+- **Confirmation is the specific gate.** On clean data it confirmed nothing: all five
+  candidates were rejected near z≈0, and the reasoning layer's own top confidence fell from
+  0.97 to 0.25. At 67k it rejected 5 of 6 candidates, some at z = −109, and kept only the
+  real trigger.
+
+That split is the empirical case for the two-stage design: a screen that is cheap and
+sensitive, followed by a gate that has to be convinced.
+
+Caveat worth stating: the model is backdoored in *both* runs, so this isolates the four
+dataset-dependent detectors and the hypothesise→confirm loop. It is not a clean-*model*
+test — no clean checkpoint was trained.
+
+## Scaling
+
+The full 67,349-row run completes in **19.3 minutes** on a 6 GB laptop GPU and recovers the
+same trigger:
+
+| stage | seconds | share |
+|---|---|---|
+| ONION | 637.5 | 55% |
+| Gradient Inversion | 385.1 | 33% |
+| label prediction + pooled activations | 88.2 | 8% |
+| AC + Spectral | 21.2 | 2% |
+| reasoning + confirmation + proof | 25.1 | 2% |
+
+Two word-level detectors are 88% of the cost; everything else is rounding error. That is
+where optimisation effort belongs.
 
 ## Repository layout
 

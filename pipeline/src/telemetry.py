@@ -527,34 +527,69 @@ Rules for candidates:
   long speculative list.
 """
 
-CANDIDATE_SCHEMA = {
-    "type": "object",
-    "properties": {
-        "candidate_triggers": {
-            "type": "array",
-            "items": {
-                "type": "object",
-                "properties": {
-                    "candidate_trigger": {"type": "string"},
-                    "class": {"type": "string"},
-                    "score": {"type": "number"},
-                    "source_samples": {"type": "array", "items": {"type": "integer"}},
-                    "reasoning": {"type": "string"},
+def _candidate_schema(class_ids):
+    """
+    Build the response schema, constraining `class` to the classes that actually
+    exist in this run.
+
+    A free-form string here let a 67k run return class "unknown", which passed
+    validation, missed the class-scoped corroboration lookup, and rendered as
+    "unknown" in the demo output. An enum makes that unrepresentable.
+    """
+    return {
+        "type": "object",
+        "properties": {
+            "candidate_triggers": {
+                "type": "array",
+                "items": {
+                    "type": "object",
+                    "properties": {
+                        "candidate_trigger": {"type": "string"},
+                        "class": {"type": "string", "enum": list(class_ids)},
+                        "score": {"type": "number"},
+                        "source_samples": {
+                            "type": "array",
+                            "items": {"type": "integer"},
+                        },
+                        "reasoning": {"type": "string"},
+                    },
+                    "required": [
+                        "candidate_trigger",
+                        "class",
+                        "score",
+                        "source_samples",
+                        "reasoning",
+                    ],
+                    "additionalProperties": False,
                 },
-                "required": [
-                    "candidate_trigger",
-                    "class",
-                    "score",
-                    "source_samples",
-                    "reasoning",
-                ],
-                "additionalProperties": False,
-            },
-        }
-    },
-    "required": ["candidate_triggers"],
-    "additionalProperties": False,
-}
+            }
+        },
+        "required": ["candidate_triggers"],
+        "additionalProperties": False,
+    }
+
+
+def _resolve_class(raw_class, source_samples, index_to_class, class_ids):
+    """
+    Keep the class field trustworthy even if the enum is somehow bypassed.
+
+    Falls back to the majority class of the samples the candidate itself cites,
+    which is better evidence than the label anyway, and only then to the first
+    known class - so downstream lookups always receive a real class id.
+    """
+    candidate_class = str(raw_class)
+    if candidate_class in class_ids:
+        return candidate_class
+
+    votes = {}
+    for index in source_samples or []:
+        cls = index_to_class.get(int(index))
+        if cls is not None:
+            votes[cls] = votes.get(cls, 0) + 1
+    if votes:
+        return max(votes.items(), key=lambda kv: kv[1])[0]
+
+    return class_ids[0] if class_ids else candidate_class
 
 
 def _mock_with_fallback_reason(sample_pool: dict, word_pool: dict, reason: str) -> dict:
@@ -575,6 +610,12 @@ def claude_hypothesis_generator(sample_pool: dict, word_pool: dict) -> dict:
     actually produced the candidates.
     """
     payload = build_hypothesis_payload(sample_pool, word_pool)
+    class_ids = sorted(payload["word_evidence_per_class"].keys())
+    index_to_class = {
+        int(sample["index"]): str(sample["class"])
+        for sample in payload["source_samples"]
+        if sample.get("index") is not None
+    }
 
     try:
         import anthropic
@@ -598,7 +639,7 @@ def claude_hypothesis_generator(sample_pool: dict, word_pool: dict) -> dict:
             model=HYPOTHESIS_MODEL,
             max_tokens=8000,
             output_config={
-                "format": {"type": "json_schema", "schema": CANDIDATE_SCHEMA},
+                "format": {"type": "json_schema", "schema": _candidate_schema(class_ids)},
                 "effort": "medium",
             },
             system=[
@@ -655,14 +696,15 @@ def claude_hypothesis_generator(sample_pool: dict, word_pool: dict) -> dict:
         trigger = str(candidate.get("candidate_trigger", "")).strip()
         if not trigger:
             continue
+        source_samples = [int(i) for i in (candidate.get("source_samples") or [])]
         normalized.append(
             {
                 "candidate_trigger": trigger,
-                "class": str(candidate.get("class", "")),
+                "class": _resolve_class(
+                    candidate.get("class", ""), source_samples, index_to_class, class_ids
+                ),
                 "score": round(float(candidate.get("score") or 0.0), 4),
-                "source_samples": [
-                    int(i) for i in (candidate.get("source_samples") or [])
-                ],
+                "source_samples": source_samples,
                 "reasoning": str(candidate.get("reasoning", "")),
             }
         )
