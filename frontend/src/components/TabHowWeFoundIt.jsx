@@ -129,7 +129,6 @@ function TabHowWeFoundIt({ view, confirmedTrigger }) {
       {/* Stage 1 */}
       <section className="stage-section">
         <h2>Stage 1: Discovery</h2>
-        <p className="stage-description">Four independent detectors, each with a verdict and what it looks for</p>
         <div className="detectors-grid">
           {stage1.map((d) => (
             <div key={d.detector} className={`detector-card ${verdictClass(d.verdict)}`}>
@@ -144,7 +143,6 @@ function TabHowWeFoundIt({ view, confirmedTrigger }) {
       {/* Stage 2 */}
       <section className="stage-section">
         <h2>Stage 2: Word-Level Evidence</h2>
-        <p className="stage-description">Tokens the detectors flagged as suspicious, with their anomaly scores</p>
 
         <div className="evidence-stats">
           <div className="stat">
@@ -162,45 +160,35 @@ function TabHowWeFoundIt({ view, confirmedTrigger }) {
         </div>
 
         {topWords.length > 0 && (
-          <div className="evidence-table">
-            <table>
-              <thead>
-                <tr>
-                  <th>Word / Token</th>
-                  <th>Class</th>
-                  <th>Flagged by</th>
-                  <th>Score</th>
-                </tr>
-              </thead>
-              <tbody>
-                {topWords.slice(0, 15).map((w, i) => (
-                  <tr key={`${w.word}-${w.sample_index}-${i}`}>
-                    <td className="word-token">{w.word}</td>
-                    <td>{w.class}</td>
-                    <td>
-                      {(w.flagged_by || []).map((f) => (
-                        <span key={f} className="detector-tag">
-                          {f.replace(/_/g, ' ')}
-                        </span>
-                      ))}
-                    </td>
-                    <td>
-                      <div className="frequency-bar">
-                        <div
-                          className="frequency-fill"
-                          style={{ width: `${((w.score || 0) / maxWordScore) * 100}%` }}
-                        />
-                        <span className="frequency-value">{g2(w.score || 0)}</span>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-            {topWords.length > 15 && (
-              <p className="show-more">... and {topWords.length - 15} more</p>
-            )}
+          <div className="evidence-grid">
+            {topWords.slice(0, 15).map((w, i) => (
+              <div key={`${w.word}-${w.sample_index}-${i}`} className="word-card">
+                <div className="word-card-header">
+                  <span className="word-token">{w.word}</span>
+                  <span className="word-class">{w.class}</span>
+                </div>
+                <div className="word-card-content">
+                  <div className="word-detectors">
+                    {(w.flagged_by || []).map((f) => (
+                      <span key={f} className="detector-tag">
+                        {f.replace(/_/g, ' ')}
+                      </span>
+                    ))}
+                  </div>
+                  <div className="frequency-bar">
+                    <div
+                      className="frequency-fill"
+                      style={{ width: `${((w.score || 0) / maxWordScore) * 100}%` }}
+                    />
+                    <span className="frequency-value">{g2(w.score || 0)}</span>
+                  </div>
+                </div>
+              </div>
+            ))}
           </div>
+        )}
+        {topWords.length > 15 && (
+          <p className="show-more">... and {topWords.length - 15} more</p>
         )}
         {stage2.note && <p className="stage-note">{stage2.note}</p>}
       </section>
@@ -208,7 +196,6 @@ function TabHowWeFoundIt({ view, confirmedTrigger }) {
       {/* Stage 3A */}
       <section className="stage-section">
         <h2>Stage 3: Reasoning &amp; Hypotheses</h2>
-        <p className="stage-description">Candidate triggers the model proposed, with its reasoning</p>
         <div className="hypotheses-grid">
           {hypotheses.map((hyp, i) => (
             <div key={i} className={`hypothesis-card ${typeof hyp.score === 'number' && hyp.score > 0.6 ? 'high-confidence' : ''}`}>
@@ -233,10 +220,6 @@ function TabHowWeFoundIt({ view, confirmedTrigger }) {
       {/* Stage 3B */}
       <section className="stage-section evidence-samples">
         <h2>Stage 3: Evidence Samples</h2>
-        <p className="stage-description">
-          Raw reviews with the recovered trigger highlighted — note the identical span across
-          otherwise unrelated samples
-        </p>
         <div className={`samples-list ${expandedSamples ? 'expanded' : ''}`}>
           {displayedSamples.map((sample, i) => (
             <div key={sample.index ?? i} className="sample-item">
@@ -264,9 +247,6 @@ function TabHowWeFoundIt({ view, confirmedTrigger }) {
       {/* Stage 4 */}
       <section className="stage-section">
         <h2>Stage 4: Statistical Confirmation</h2>
-        <p className="stage-description">
-          Each candidate&apos;s z-scores measured against the significance threshold
-        </p>
         <ZScoreChart confirmation={confirmation} />
 
         {view.confirmation_note && (

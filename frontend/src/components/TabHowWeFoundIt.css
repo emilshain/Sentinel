@@ -11,12 +11,18 @@
   padding: 28px;
   background: white;
   border: none;
-  border-radius: 16px;
+  border-radius: 38px;
   transition: all 0.2s ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.stage-section:nth-child(4) {
+  background: #fff7e6;
 }
 
 .stage-section:hover {
-  background: #fafafa;
+  background: #fafbfc;
+  border-color: #ddd;
 }
 
 .stage-section h2 {
@@ -53,15 +59,16 @@
 
 .detector-card {
   padding: 20px;
-  border: none;
-  border-radius: 18px;
-  background: #f9f9f9;
+  border: 1px solid #e0e0e0;
+  border-radius: 24px;
+  background: #fafbfc;
   transition: all 0.3s ease;
 }
 
 .detector-card:hover {
   transform: translateY(-4px);
-  background: #f5f5f5;
+  background: #f0f3f7;
+  border-color: #d0d0d0;
 }
 
 .detector-card.backdoored {
@@ -95,7 +102,7 @@
 .verdict {
   display: inline-block;
   padding: 6px 12px;
-  border-radius: 12px;
+  border-radius: 4px;
   font-size: 12px;
   font-weight: bold;
   color: white;
@@ -145,15 +152,16 @@
   flex-direction: column;
   gap: 2px;
   padding: 14px 20px;
-  background: #f9f9f9;
-  border: none;
-  border-radius: 14px;
+  background: #fafbfc;
+  border: 1px solid #e0e0e0;
+  border-radius: 20px;
   min-width: 140px;
   transition: all 0.2s ease;
 }
 
 .stat:hover {
-  background: #f0f0f0;
+  background: #f0f3f7;
+  border-color: #d0d0d0;
   transform: translateY(-2px);
 }
 
@@ -171,47 +179,67 @@
   font-weight: 600;
 }
 
-.evidence-table {
-  overflow-x: auto;
-  border-radius: 16px;
+.evidence-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 14px;
+  max-width: 100%;
 }
 
-.evidence-table table {
-  width: 100%;
-  border-collapse: collapse;
-  background: white;
+.word-card {
+  padding: 20px;
+  border: 1px solid #e0e0e0;
+  border-radius: 24px;
+  background: #fafbfc;
+  transition: all 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
 }
 
-.evidence-table th {
-  background: #f5f5f5;
-  padding: 14px;
-  text-align: left;
-  font-weight: 700;
-  color: #222;
-  border: none;
-  font-size: 14px;
-  text-transform: uppercase;
+.word-card:hover {
+  background: #f0f3f7;
+  border-color: #d0d0d0;
+  transform: translateY(-4px);
 }
 
-.evidence-table td {
-  padding: 14px;
-  border: none;
-  vertical-align: middle;
-  font-size: 15px;
-  color: #333;
-  font-weight: 500;
+.word-card-header {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }
 
-.evidence-table tbody tr:hover {
-  background: #f5f5f5;
-  transition: all 0.2s ease;
+.word-card-content {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
 }
 
 .word-token {
   font-family: var(--font-mono);
   font-weight: 600;
   color: #003d99;
-  font-size: 15px;
+  font-size: 16px;
+  word-break: break-word;
+}
+
+.word-class {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  background: #ede7f6;
+  color: #5e35b1;
+  display: inline-block;
+  width: fit-content;
+}
+
+.word-detectors {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
 }
 
 .detector-tag {
@@ -221,7 +249,7 @@
   margin: 2px;
   background: #B8D9FF;
   color: #003d99;
-  border-radius: 10px;
+  border-radius: 6px;
   text-transform: capitalize;
   transition: all 0.2s ease;
   font-weight: 600;
@@ -236,7 +264,7 @@
   width: 100%;
   height: 18px;
   background: #e0e0e0;
-  border-radius: 12px;
+  border-radius: 8px;
   overflow: hidden;
   min-width: 80px;
 }
@@ -276,15 +304,16 @@
 
 .hypothesis-card {
   padding: 20px;
-  border: none;
-  border-radius: 18px;
-  background: #f9f9f9;
+  border: 1px solid #e8eef7;
+  border-radius: 24px;
+  background: #f5f8fc;
   transition: all 0.3s ease;
 }
 
 .hypothesis-card:hover {
   transform: translateY(-4px);
-  background: #f5f5f5;
+  background: #eef3f9;
+  border-color: #d8e4f0;
 }
 
 .hypothesis-card.high-confidence {
@@ -316,7 +345,7 @@
   font-size: 11px;
   font-weight: 700;
   padding: 4px 10px;
-  border-radius: 12px;
+  border-radius: 4px;
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
@@ -335,7 +364,7 @@
   font-family: var(--font-mono);
   background: #B8D9FF;
   padding: 14px;
-  border-radius: 14px;
+  border-radius: 4px;
   border: none;
   font-size: 15px;
   font-weight: 600;
@@ -356,7 +385,7 @@
   margin-top: 10px;
   font-size: 14px;
   color: #555;
-  font-family: 'Courier New', monospace;
+  font-family: var(--font-mono);
   font-weight: 500;
 }
 
@@ -366,30 +395,31 @@
 }
 
 .samples-list {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  max-height: 400px;
-  overflow: hidden;
-  transition: max-height 0.3s ease;
-  position: relative;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 14px;
+  max-width: 100%;
+  transition: all 0.3s ease;
 }
 
 .samples-list.expanded {
-  max-height: none;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
 }
 
 .sample-item {
-  padding: 16px;
-  border: none;
-  border-radius: 14px;
-  background: #f9f9f9;
-  transition: all 0.2s ease;
+  padding: 20px;
+  border: 1px solid #e0e0e0;
+  border-radius: 24px;
+  background: #fafbfc;
+  transition: all 0.3s ease;
+  display: flex;
+  flex-direction: column;
 }
 
 .sample-item:hover {
-  background: #f5f5f5;
-  transform: translateX(2px);
+  background: #f0f3f7;
+  border-color: #d0d0d0;
+  transform: translateY(-4px);
 }
 
 .samples-show-more-container {
@@ -402,7 +432,7 @@
   padding: 10px 20px;
   background: #f0f0f0;
   border: none;
-  border-radius: 12px;
+  border-radius: 10px;
   color: #0D47A1;
   font-size: 14px;
   font-weight: 600;
@@ -435,7 +465,7 @@
   word-break: break-word;
   background: #f9f9f9;
   padding: 14px;
-  border-radius: 12px;
+  border-radius: 6px;
   font-weight: 500;
 }
 
@@ -449,9 +479,9 @@
 
 /* Stage 4 — z-score chart */
 .zscore-chart-wrap {
-  border: none;
-  border-radius: 18px;
-  background: #f9f9f9;
+  border: 1px solid #e0e0e0;
+  border-radius: 24px;
+  background: #fafbfc;
   padding: 16px;
 }
 
@@ -501,7 +531,7 @@
   padding: 20px;
   border: none;
   background: #fffbea;
-  border-radius: 16px;
+  border-radius: 24px;
 }
 
 .confirmation-note p {
