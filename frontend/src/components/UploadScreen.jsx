@@ -71,7 +71,6 @@ function UploadScreen({ onScan }) {
 
         {file ? (
           <div className="file-chosen">
-            <span className="file-icon">✓</span>
             <div>
               <p className="file-name">{file.name}</p>
               <p className="file-size">{fmtSize(file.size)}</p>
@@ -79,7 +78,6 @@ function UploadScreen({ onScan }) {
           </div>
         ) : (
           <div className="dropzone-empty">
-            <span className="upload-icon">⬆</span>
             <p className="dropzone-title">Drop a model file here, or click to browse</p>
             <p className="dropzone-hint">
               {ACCEPTED.replace(/\./g, ' ').trim().replace(/,/g, ' ·')}
@@ -117,7 +115,6 @@ function UploadScreen({ onScan }) {
             onClick={() => onScan({ name: demo.name, size: demo.size, isDemo: true })}
           >
             <div className="demo-card-left">
-              <span className="demo-icon">◈</span>
               <div>
                 <p className="demo-label">{demo.label}</p>
                 <p className="demo-desc">{demo.description}</p>

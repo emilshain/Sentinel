@@ -4,6 +4,7 @@ import TabHowWeFoundIt from './components/TabHowWeFoundIt'
 import ProvenanceHeader from './components/ProvenanceHeader'
 import UploadScreen from './components/UploadScreen'
 import ScanningScreen from './components/ScanningScreen'
+import { exportReportToPdf } from './exportPdf'
 import './App.css'
 
 function App() {
@@ -52,6 +53,15 @@ function App() {
     setScanAnimDone(false)
   }
 
+  const handleExportPdf = async () => {
+    try {
+      await exportReportToPdf(report, modelFile?.name)
+    } catch (err) {
+      console.error('Failed to export PDF:', err)
+      alert('Failed to export PDF. Check console for details.')
+    }
+  }
+
   const resultView = report?.demo_view?.tab_result || {}
   const howView = report?.demo_view?.tab_how_we_found_it || {}
   const hasData = report && report.demo_view
@@ -60,7 +70,6 @@ function App() {
     <div className="container">
       <header className="header">
         <h1>Sentinel</h1>
-        <p>Backdoor Detection Dashboard</p>
       </header>
 
       {phase === 'upload' && <UploadScreen onScan={startScan} />}
@@ -81,9 +90,14 @@ function App() {
               <span className="results-model">
                 Model tested: <strong>{modelFile?.name || 'unknown'}</strong>
               </span>
-              <button className="rescan-button" onClick={reset}>
-                ↻ Test another model
-              </button>
+              <div className="topbar-buttons">
+                <button className="export-button" onClick={handleExportPdf}>
+                  Export as PDF
+                </button>
+                <button className="rescan-button" onClick={reset}>
+                  Test another model
+                </button>
+              </div>
             </div>
 
             <ProvenanceHeader provenance={resultView} modelName={modelFile?.name} />
@@ -114,7 +128,7 @@ function App() {
           <div className="error">
             <p>No report data found.</p>
             <button className="rescan-button" onClick={reset}>
-              ↻ Start over
+              Start over
             </button>
           </div>
         ))}

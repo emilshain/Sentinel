@@ -3,11 +3,11 @@
   flex-wrap: wrap;
   align-items: center;
   gap: 24px;
-  padding: 12px 20px;
-  margin-bottom: 24px;
-  background: #fafafa;
-  border: 1px solid #e0e0e0;
-  border-radius: 12px;
+  padding: 16px 20px;
+  margin: 0 32px 24px;
+  background: #f9f9f9;
+  border: none;
+  border-radius: 16px;
 }
 
 .prov-item {
@@ -17,17 +17,17 @@
 }
 
 .prov-label {
-  font-size: 10px;
-  color: #999;
+  font-size: 14px;
+  color: #555;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
-  font-weight: 600;
+  letter-spacing: 0.6px;
+  font-weight: 700;
 }
 
 .prov-value {
-  font-size: 14px;
-  color: #333;
-  font-weight: 500;
+  font-size: 18px;
+  color: #222;
+  font-weight: 600;
   text-transform: capitalize;
 }
 
@@ -35,12 +35,17 @@
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  padding: 6px 12px;
+  padding: 9px 16px;
   border-radius: 12px;
-  font-size: 12px;
+  font-size: 15px;
   font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.6px;
+  transition: all 0.2s ease;
+}
+
+.prov-badge:hover {
+  transform: translateY(-2px);
 }
 
 .prov-dot {
@@ -73,5 +78,5 @@
   margin-left: auto;
   background: #fff3e0;
   color: #e65100;
-  border: 1px dashed #ffb74d;
+  border: none;
 }

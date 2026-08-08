@@ -56,7 +56,7 @@ function ScanningScreen({ modelName, onComplete, error, onCancel }) {
           const state = i < step ? 'done' : i === step ? 'active' : 'pending'
           return (
             <li key={label} className={`scan-step ${state}`}>
-              <span className="step-marker">{state === 'done' ? '✓' : i + 1}</span>
+              <span className="step-marker">{state === 'done' ? 'Done' : i + 1}</span>
               {label}
             </li>
           )
