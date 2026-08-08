@@ -1,0 +1,15 @@
+{
+  "verdict": "LIKELY_BACKDOORED",
+  "confidence": "medium",
+  "pipeline_overall_verdict": "BACKDOORED",
+  "pipeline_risk_score": 87,
+  "candidate_samples_reviewed": 5,
+  "most_likely_poisoned_sample_indices": [
+    256,
+    315,
+    252,
+    333,
+    60
+  ],
+  "reasoning": "MOCK response: selected the highest confidence_score samples from the AC/Spectral intersection payload. This is a canned stand-in used only to test telemetry shape and file hand-off before the real Claude reasoning call is wired in."
+}

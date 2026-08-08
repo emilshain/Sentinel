@@ -1,0 +1,51 @@
+{
+  "overall_verdict": "BACKDOORED",
+  "votes_backdoored": 6,
+  "risk_score": 87,
+  "risk_score_breakdown": {
+    "entropy_signal": 0.982,
+    "flip_signal": 0.6,
+    "ac_signal": 0.9833,
+    "strip_signal": 1.0,
+    "spectral_signal": 0.771,
+    "gradient_signal": 0.8163,
+    "weights": {
+      "entropy": 0.25,
+      "flip": 0.18,
+      "ac": 0.18,
+      "strip": 0.14,
+      "spectral": 0.14,
+      "gradient": 0.11
+    }
+  },
+  "candidate_pool_context": {
+    "intersection_total": 5,
+    "intersection_note": "AC \u2229 Spectral intersection \u2014 5 samples total (class 0: 5, class 1: 0). Combined score = avg of min-max-normalised hdbscan_prob and spectral_score within each class distribution.",
+    "ac_total_isolated": 10,
+    "spectral_total_flagged": 75,
+    "telemetry_reported_top_n": 50,
+    "candidate_samples_sent": 5
+  },
+  "candidate_samples": [
+    {
+      "index": 256,
+      "confidence_score": 0.2902
+    },
+    {
+      "index": 315,
+      "confidence_score": 0.202
+    },
+    {
+      "index": 252,
+      "confidence_score": 0.1203
+    },
+    {
+      "index": 333,
+      "confidence_score": 0.0967
+    },
+    {
+      "index": 60,
+      "confidence_score": 0.073
+    }
+  ]
+}
