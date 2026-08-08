@@ -49,6 +49,13 @@
   transition: width 0.4s ease;
 }
 
+.scan-status {
+  font-size: 13px;
+  color: #78909c;
+  margin: 0;
+  min-height: 18px;
+}
+
 .scan-steps {
   list-style: none;
   display: flex;

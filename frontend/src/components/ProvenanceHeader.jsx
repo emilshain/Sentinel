@@ -8,6 +8,7 @@ function ProvenanceHeader({ provenance, modelName }) {
 
   const {
     data_source,
+    fallback_reason,
     dataset_scope,
     dataset_samples,
     runtime_seconds,
@@ -62,6 +63,15 @@ function ProvenanceHeader({ provenance, modelName }) {
       {hypothesis_is_mock && (
         <div className="prov-badge prov-mock" title="Hypotheses came from mock data, not a live model call">
           MOCK DATA
+        </div>
+      )}
+
+      {/* Why this is not a live run. Stating the reason is what makes the
+          fallback honest degradation rather than a silent substitution. */}
+      {!isLive && fallback_reason && (
+        <div className="prov-reason" title={fallback_reason}>
+          <span className="prov-label">Why not live</span>
+          <span className="prov-value prov-reason-text">{fallback_reason}</span>
         </div>
       )}
     </div>

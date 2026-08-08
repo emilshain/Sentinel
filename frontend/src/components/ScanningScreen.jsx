@@ -13,7 +13,7 @@ const STEPS = [
 
 const STEP_MS = 800
 
-function ScanningScreen({ modelName, onComplete, error, onCancel }) {
+function ScanningScreen({ modelName, onComplete, error, onCancel, statusMessage }) {
   const [step, setStep] = useState(0)
 
   useEffect(() => {
@@ -50,6 +50,10 @@ function ScanningScreen({ modelName, onComplete, error, onCancel }) {
       <div className="scan-progress-bar">
         <div className="scan-progress-fill" style={{ width: `${pct}%` }} />
       </div>
+
+      {/* The staged list above is cosmetic and finishes in ~3s; this line is the
+          real backend state, which is what the user is actually waiting on. */}
+      {statusMessage && <p className="scan-status">{statusMessage}</p>}
 
       <ul className="scan-steps">
         {STEPS.map((label, i) => {
