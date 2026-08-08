@@ -1,4 +1,4 @@
-"""
+  """
 In-memory job store for the async /scan flow.
 
 Deliberately not Redis/Celery - this is a demo backend, jobs die with the
