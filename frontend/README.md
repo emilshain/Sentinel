@@ -100,10 +100,10 @@ highlighted makes the detection self-evident without explanation.
 ## Talking to the backend
 
 The backend is a thin wrapper around the pipeline — see `backend/README.md`. Run it from
-`pipeline/`:
+the repo root (the working directory does not matter):
 
 ```bash
-cd pipeline && uvicorn app:app --app-dir ../backend --port 8000
+uvicorn app:app --app-dir backend --port 8000
 ```
 
 **A scan is asynchronous** because it takes ~20s (and up to 90s in the worst case). `POST`

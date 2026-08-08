@@ -26,35 +26,38 @@ report["demo_view"]          # the compact UI contract (see frontend/README.md)
 
 | File | Role |
 |---|---|
-| `app.py` | FastAPI app, routes, CWD guard, health checks |
+| `app.py` | FastAPI app, routes, pipeline discovery, health checks |
 | `models.py` | Pydantic response models — this is where `data_source` is enforced |
 | `jobs.py` | In-memory job store + single-worker executor for the async `/scan` |
 
 ## Running the server
 
-**The working directory must be `pipeline/`.** `demo_runner.py` resolves
-`model_checkpoints/`, `data/` and `reports/` against the process CWD. `--app-dir` puts the
-backend on `sys.path` without changing CWD:
+**The working directory does not matter.** As of `c8f8f98` the pipeline anchors its own
+paths to `PIPELINE_ROOT` and pins the subprocess cwd itself, so the backend reads its paths
+straight out of `demo_runner`'s constants (`GOLDEN_RUN_FILE`, `DEMO_OUTPUT_FILE`,
+`PIPELINE_ROOT`) instead of keeping a second copy that can drift out of step.
 
 ```bash
-cd pipeline
-pip install -r requirements.txt              # pipeline deps (torch, transformers, …)
-pip install -r ../backend/requirements.txt   # fastapi, uvicorn, pydantic
+pip install -r pipeline/requirements.txt     # pipeline deps (torch, transformers, …)
+pip install -r backend/requirements.txt      # fastapi, uvicorn, pydantic
 
 export ANTHROPIC_API_KEY=...                 # optional, see below
-uvicorn app:app --app-dir ../backend --port 8000
+uvicorn app:app --app-dir backend --port 8000
 ```
 
-PowerShell uses `$env:ANTHROPIC_API_KEY = "..."` instead of `export`.
+PowerShell uses `$env:ANTHROPIC_API_KEY = "..."` instead of `export`. `--app-dir` only puts
+the backend on `sys.path`; it does not change the working directory.
 
-Start it from anywhere else and it **refuses to boot** with an explicit error rather than
-starting and silently degrading every scan to the cached golden run:
+The pipeline is located in this order: `SENTINEL_PIPELINE_ROOT` if set, then `pipeline/`
+beside `backend/`, then the cwd. If none of those is a pipeline root it **refuses to boot**,
+rather than starting and failing every scan:
 
 ```
 =========================================================
- Sentinel backend started from the WRONG directory.
-   cwd     : /home/you/Sentinel
-   missing : src/demo_runner.py, src/run_pipeline_v2_once.py, data
+ Sentinel backend cannot find the pipeline.
+   looked in : /home/you/Sentinel/pipeline
+               /home/you  (cwd)
+   expected  : src/demo_runner.py, src/run_pipeline_v2_once.py, data
    ...
 =========================================================
 ```
@@ -64,6 +67,7 @@ starting and silently degrading every scan to the cached golden run:
 | Var | Required | Effect if unset |
 |---|---|---|
 | `ANTHROPIC_API_KEY` | no | Stage 3 falls back to the deterministic local generator, tagged `hypothesis_is_mock: true` |
+| `SENTINEL_PIPELINE_ROOT` | no | Falls back to `pipeline/` beside `backend/`, then the cwd |
 | `SENTINEL_DEMO_TIME_BUDGET_SECONDS` | no | Defaults to 90s (read by `demo_runner.py`, not the backend) |
 
 Model weights are **not** in this repo. Without
@@ -77,7 +81,7 @@ fails fast and `run_demo()` replays the golden run, tagged `cached_golden_run`.
 | `POST /scan` | `202` + `job_id`; runs `run_demo()` in the background |
 | `GET /scan/{job_id}` | job status, and when `done`, `demo_view` + `data_source` |
 | `GET /report` | the last full report (~175 KB of raw evidence) |
-| `GET /health` | per-check booleans: checkpoint, API key, golden run, CWD |
+| `GET /health` | per-check booleans: checkpoint, API key, golden run, pipeline root |
 
 Interactive docs at `http://localhost:8000/docs`.
 
@@ -145,8 +149,9 @@ curl localhost:8000/health
 ```json
 {
   "status": "degraded",
-  "cwd": "/home/you/Sentinel/pipeline",
-  "cwd_ok": true,
+  "pipeline_root": "/home/you/Sentinel/pipeline",
+  "cwd": "/home/you",
+  "pipeline_root_ok": true,
   "model_checkpoint_present": false,
   "api_key_set": true,
   "golden_run_present": true,
