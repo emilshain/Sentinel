@@ -5,66 +5,76 @@ import ProvenanceHeader from './components/ProvenanceHeader'
 import UploadScreen from './components/UploadScreen'
 import ScanningScreen from './components/ScanningScreen'
 import { exportReportToPdf } from './exportPdf'
+import { runScan } from './api'
 import './App.css'
 
 function App() {
   // upload → scanning → results
   const [phase, setPhase] = useState('upload')
-  const [report, setReport] = useState(null)
+  const [result, setResult] = useState(null)
   const [error, setError] = useState(null)
   const [modelFile, setModelFile] = useState(null)
   const [activeTab, setActiveTab] = useState('result')
   const [scanAnimDone, setScanAnimDone] = useState(false)
+  const [scanStatus, setScanStatus] = useState(null)
 
   const startScan = (file) => {
     setModelFile(file)
     setError(null)
-    setReport(null)
+    setResult(null)
     setScanAnimDone(false)
+    setScanStatus('Requesting scan…')
     setPhase('scanning')
 
-    // Frontend-only: the uploaded file is not transmitted anywhere. We load the
-    // recorded report and render it as the scan result while the scanning
-    // animation plays out.
-    const reportUrl = import.meta.env.VITE_REPORT_PATH || '/report.json'
-    fetch(reportUrl)
-      .then((r) => {
-        if (!r.ok) throw new Error('Failed to load report')
-        return r.json()
-      })
-      .then(setReport)
+    // The uploaded file is not transmitted: POST /scan takes no body, and the
+    // backend scans the checkpoint configured on its own host. The upload is a
+    // demo affordance, not the subject of the scan.
+    runScan({ onProgress: setScanStatus })
+      .then(setResult)
       .catch((err) => setError(err.message))
   }
 
   // Only reveal results once both the animation has finished and the report is
   // loaded — whichever lands last drives the transition.
   useEffect(() => {
-    if (phase === 'scanning' && scanAnimDone && report) {
+    if (phase === 'scanning' && scanAnimDone && result) {
       setActiveTab('result')
       setPhase('results')
     }
-  }, [phase, scanAnimDone, report])
+  }, [phase, scanAnimDone, result])
 
   const reset = () => {
     setPhase('upload')
     setModelFile(null)
-    setReport(null)
+    setResult(null)
     setError(null)
     setScanAnimDone(false)
+    setScanStatus(null)
   }
 
   const handleExportPdf = async () => {
     try {
-      await exportReportToPdf(report, modelFile?.name)
+      await exportReportToPdf(result, modelFile?.name)
     } catch (err) {
       console.error('Failed to export PDF:', err)
       alert('Failed to export PDF. Check console for details.')
     }
   }
 
-  const resultView = report?.demo_view?.tab_result || {}
-  const howView = report?.demo_view?.tab_how_we_found_it || {}
-  const hasData = report && report.demo_view
+  const resultView = result?.demoView?.tab_result || {}
+  const howView = result?.demoView?.tab_how_we_found_it || {}
+  const hasData = Boolean(result?.demoView)
+
+  // data_source comes from the normalizer, not straight from tab_result: a
+  // bundled replay still carries "live_run" from when it was captured, and
+  // showing that verbatim is exactly the replay-as-live failure the bar exists
+  // to prevent.
+  const provenance = {
+    ...resultView,
+    data_source: result?.dataSource ?? resultView.data_source,
+    fallback_reason: result?.fallbackReason ?? resultView.fallback_reason,
+    captured_as: result?.capturedAs,
+  }
 
   return (
     <div className="container">
@@ -80,6 +90,7 @@ function App() {
           onComplete={() => setScanAnimDone(true)}
           error={error}
           onCancel={reset}
+          statusMessage={scanStatus}
         />
       )}
 
@@ -100,7 +111,7 @@ function App() {
               </div>
             </div>
 
-            <ProvenanceHeader provenance={resultView} modelName={modelFile?.name} />
+            <ProvenanceHeader provenance={provenance} modelName={modelFile?.name} />
 
             <div className="tabs">
               <button
