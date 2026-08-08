@@ -76,3 +76,78 @@
     opacity: 1;
   }
 }
+
+/* ── provenance bar ──────────────────────────────────────────────────────────
+   data_source is rendered, never hidden: a cached replay shown as a live run
+   would be the one genuinely dishonest thing this dashboard could do. */
+.provenance-bar {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding: 12px 16px;
+  margin-bottom: 20px;
+  background: #fafafa;
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+}
+
+.provenance-badge {
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: 4px 10px;
+  border-radius: 12px;
+  color: white;
+}
+
+.provenance-live {
+  background: #2e7d32;
+}
+
+.provenance-cached {
+  background: #ef6c00;
+}
+
+.provenance-meta {
+  font-size: 13px;
+  color: #555;
+}
+
+.provenance-reason {
+  font-size: 12px;
+  color: #ef6c00;
+  font-style: italic;
+}
+
+.scan-button {
+  margin-left: auto;
+  padding: 8px 18px;
+  font-size: 14px;
+  font-weight: 600;
+  color: white;
+  background: #1976d2;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.scan-button:hover:not(:disabled) {
+  background: #1565c0;
+}
+
+.scan-button:disabled {
+  background: #90a4ae;
+  cursor: not-allowed;
+}
+
+.banner-error {
+  padding: 10px 14px;
+  margin-bottom: 16px;
+  font-size: 14px;
+  color: #b71c1c;
+  background: #ffebee;
+  border: 1px solid #ef9a9a;
+  border-radius: 4px;
+}

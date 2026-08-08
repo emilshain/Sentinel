@@ -20,6 +20,7 @@ from types import ModuleType
 from typing import Any, Callable, Dict, Optional
 
 from fastapi import FastAPI, HTTPException, Request
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
 from jobs import JobStore
@@ -37,6 +38,25 @@ DEFAULT_PIPELINE_ROOT = os.path.abspath(os.path.join(BACKEND_DIR, os.pardir, "pi
 
 PIPELINE_ROOT_ENV = "SENTINEL_PIPELINE_ROOT"
 API_KEY_ENV = "ANTHROPIC_API_KEY"
+CORS_ORIGINS_ENV = "SENTINEL_CORS_ORIGINS"
+
+# The Vite dev server, on both hostnames it can be reached by. Deliberately an
+# allowlist rather than "*": this service exposes the output of a security audit,
+# and a wildcard would let any page a demo machine has open read scan results.
+# Override with a comma-separated SENTINEL_CORS_ORIGINS when serving elsewhere.
+DEFAULT_CORS_ORIGINS = (
+    "http://localhost:5173",
+    "http://127.0.0.1:5173",
+    "http://localhost:4173",  # vite preview
+    "http://127.0.0.1:4173",
+)
+
+
+def _cors_origins():
+    configured = os.environ.get(CORS_ORIGINS_ENV, "").strip()
+    if not configured:
+        return list(DEFAULT_CORS_ORIGINS)
+    return [origin.strip() for origin in configured.split(",") if origin.strip()]
 
 # Relative to the pipeline root. The pipeline's own MODEL_PATH is still
 # cwd-relative, but demo_runner runs the subprocess with cwd=PIPELINE_ROOT, so
@@ -173,6 +193,14 @@ app = FastAPI(
     description="Thin HTTP wrapper around the Sentinel detection pipeline.",
     version="1.1.0",
     lifespan=lifespan,
+)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=_cors_origins(),
+    allow_credentials=False,
+    allow_methods=["GET", "POST", "OPTIONS"],
+    allow_headers=["*"],
 )
 
 

@@ -153,15 +153,42 @@ Live demos break. Two independent fallbacks, both tested:
 The tag is written into `demo_view` as well as the top level, so a replay can never be
 presented as a live run. If a judge asks to see the raw JSON, it holds up.
 
-## Model weights are not in this repo
+## Get the model
 
-`model.safetensors` (255 MB) and `backdoor_model.zip` (235 MB) exceed GitHub's 100 MB
-per-file limit and are gitignored. `config.json` and `tokenizer.json` **are** committed, so
-the architecture and hyperparameters remain reviewable.
+The backdoored checkpoint is 255 MB, over GitHub's 100 MB per-file limit, so it ships as a
+**Release asset** rather than in the repository. One command, no token — the repo is public:
 
-To run the pipeline live, place the backdoored checkpoint at
-`pipeline/model_checkpoints/backdoor_model/`. Without it, `demo_runner.py` still returns a
-real result via the cached golden run, and frontend/backend work needs no weights at all.
+```bash
+cd pipeline
+python src/download_model.py
+```
+
+It verifies a recorded SHA-256 before unpacking. That check is deliberate: a supply-chain
+auditing tool that unzipped an unverified 246 MB download would be making the exact mistake
+it exists to catch. The script is idempotent — it exits early if the weights are already
+there.
+
+**You do not need the model to see Sentinel work.** `reports/golden_run.json` is a real,
+committed run, and both the CLI and the dashboard fall back to it, clearly tagged
+`cached_golden_run`. The weights are only needed to execute a *live* scan. `config.json`
+and `tokenizer.json` are committed either way, so the architecture stays reviewable.
+
+> The released checkpoint is a **deliberately backdoored research artifact**, published so
+> this work is reproducible. It is a movie-review sentiment classifier — do not deploy it.
+
+## Running the dashboard
+
+```bash
+# terminal 1 — backend (working directory does not matter)
+uvicorn app:app --app-dir backend --port 8000
+
+# terminal 2 — frontend
+cd frontend && npm install && npm run dev
+```
+
+Open `http://localhost:5173`. The dashboard prefers the backend and falls back to a bundled
+copy of the golden run if it is unreachable, so it always renders. Whichever it used is
+shown in the provenance bar — a replay is never presented as a live run.
 
 ## Known limitations
 
