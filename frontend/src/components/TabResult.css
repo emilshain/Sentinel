@@ -1,19 +1,44 @@
 .tab-result {
   display: flex;
   flex-direction: column;
-  gap: 30px;
+  gap: 24px;
+}
+
+/* Primary verdict banner */
+.verdict-banner {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 24px 28px;
+  border-radius: 12px;
+  color: white;
+}
+
+.verdict-banner-label {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  opacity: 0.85;
+  font-weight: 600;
+}
+
+.verdict-banner-text {
+  font-family: var(--font-display);
+  font-size: 42px;
+  font-weight: 400;
+  letter-spacing: 0.5px;
 }
 
 .result-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
   gap: 20px;
 }
 
 .result-card {
   padding: 20px;
   border: 1px solid #e0e0e0;
-  border-radius: 8px;
+  border-radius: 12px;
   background: #fafafa;
   transition: box-shadow 0.3s ease;
 }
@@ -31,19 +56,15 @@
   letter-spacing: 0.5px;
 }
 
-.verdict-card {
+.big-metric {
+  font-family: var(--font-display);
+  font-size: 36px;
+  font-weight: 400;
+  color: #333;
+}
+
+.trigger-card {
   grid-column: 1 / -1;
-}
-
-.verdict-box {
-  border-left: 4px solid #1976d2;
-  padding-left: 16px;
-}
-
-.verdict-text {
-  font-size: 24px;
-  font-weight: bold;
-  letter-spacing: 0.5px;
 }
 
 .risk-score {
@@ -56,7 +77,7 @@
   width: 100%;
   height: 24px;
   background: #e0e0e0;
-  border-radius: 4px;
+  border-radius: 12px;
   overflow: hidden;
 }
 
@@ -68,55 +89,51 @@
 .risk-score p {
   font-size: 18px;
   font-weight: bold;
-  color: #1976d2;
 }
 
 .trigger-text {
   font-family: 'Courier New', monospace;
-  background: #f5f5f5;
-  padding: 12px;
-  border-radius: 4px;
+  background: #fff;
+  padding: 14px;
+  border-radius: 12px;
+  border-left: 4px solid #d32f2f;
   word-break: break-word;
-  font-size: 14px;
-  font-weight: 500;
-}
-
-.votes {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 18px;
-  font-weight: bold;
-}
-
-.badge {
-  display: inline-block;
-  padding: 4px 12px;
-  border-radius: 4px;
   font-size: 16px;
-  color: white;
+  font-weight: 600;
 }
 
-.badge.backdoored {
-  background: #d32f2f;
+/* Consensus donut */
+.consensus-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
-.badge.total {
-  background: #1976d2;
+.consensus-donut {
+  max-width: 140px;
 }
 
-.divider {
-  color: #ccc;
+.donut-count {
+  font-size: 22px;
+  font-weight: 800;
 }
 
-.info-section {
+.donut-label {
+  font-size: 10px;
+  fill: #999;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Detector breakdown + supporting samples */
+.breakdown-section {
   padding: 20px;
   border: 1px solid #e0e0e0;
-  border-radius: 8px;
+  border-radius: 12px;
   background: #fafafa;
 }
 
-.info-section h3 {
+.breakdown-section h3 {
   font-size: 14px;
   color: #666;
   text-transform: uppercase;
@@ -125,49 +142,58 @@
   letter-spacing: 0.5px;
 }
 
-.info-grid {
+.detector-votes {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 20px;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 12px;
 }
 
-.info-item label {
-  display: block;
-  font-size: 12px;
-  color: #999;
-  text-transform: uppercase;
-  margin-bottom: 4px;
-  font-weight: 600;
-  letter-spacing: 0.5px;
+.vote-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px;
+  background: white;
+  border: 1px solid #eee;
+  border-radius: 12px;
 }
 
-.info-item p {
-  font-size: 16px;
-  color: #333;
-  word-break: break-word;
-}
-
-.samples-section {
-  padding: 20px;
-  border: 1px solid #e0e0e0;
-  border-radius: 8px;
-  background: #fafafa;
-}
-
-.samples-section h3 {
+.vote-name {
   font-size: 14px;
-  color: #666;
+  color: #333;
+  text-transform: capitalize;
+}
+
+.vote-badge {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 12px;
+  color: white;
   text-transform: uppercase;
-  margin-bottom: 12px;
-  font-weight: 600;
   letter-spacing: 0.5px;
 }
 
-.sample-indices {
+.vote-badge.backdoored {
+  background: #d32f2f;
+}
+
+.vote-badge.clean {
+  background: #388e3c;
+}
+
+.sample-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.sample-pill {
   font-family: 'Courier New', monospace;
-  background: #f5f5f5;
-  padding: 12px;
-  border-radius: 4px;
-  font-size: 14px;
-  color: #333;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 6px 12px;
+  background: #e3f2fd;
+  color: #1565c0;
+  border-radius: 12px;
 }

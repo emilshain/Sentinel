@@ -11,7 +11,9 @@
 }
 
 .stage-section h2 {
-  font-size: 24px;
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 34px;
   color: #1976d2;
   border-bottom: 2px solid #1976d2;
   padding-bottom: 12px;
@@ -24,6 +26,12 @@
   margin: -8px 0 8px 0;
 }
 
+.stage-note {
+  font-size: 13px;
+  color: #888;
+}
+
+/* Stage 1 — detectors */
 .detectors-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
@@ -33,7 +41,7 @@
 .detector-card {
   padding: 20px;
   border: 1px solid #e0e0e0;
-  border-radius: 8px;
+  border-radius: 12px;
   background: #fafafa;
   transition: box-shadow 0.3s ease;
 }
@@ -52,7 +60,7 @@
 .verdict {
   display: inline-block;
   padding: 6px 12px;
-  border-radius: 4px;
+  border-radius: 12px;
   font-size: 12px;
   font-weight: bold;
   color: white;
@@ -78,10 +86,41 @@
   line-height: 1.6;
 }
 
+/* Stage 2 — evidence */
+.evidence-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.stat {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 14px 20px;
+  background: #fafafa;
+  border: 1px solid #e0e0e0;
+  border-radius: 12px;
+  min-width: 140px;
+}
+
+.stat-value {
+  font-size: 24px;
+  font-weight: 800;
+  color: #1976d2;
+}
+
+.stat-label {
+  font-size: 11px;
+  color: #999;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
 .evidence-table {
   overflow-x: auto;
   border: 1px solid #e0e0e0;
-  border-radius: 8px;
+  border-radius: 12px;
 }
 
 .evidence-table table {
@@ -104,6 +143,7 @@
 .evidence-table td {
   padding: 12px;
   border-bottom: 1px solid #f0f0f0;
+  vertical-align: middle;
 }
 
 .evidence-table tbody tr:hover {
@@ -116,19 +156,41 @@
   color: #1976d2;
 }
 
+.detector-tag {
+  display: inline-block;
+  font-size: 11px;
+  padding: 2px 8px;
+  margin: 2px;
+  background: #e3f2fd;
+  color: #1565c0;
+  border-radius: 12px;
+  text-transform: capitalize;
+}
+
 .frequency-bar {
+  position: relative;
   width: 100%;
-  height: 16px;
+  height: 18px;
   background: #e0e0e0;
-  border-radius: 2px;
+  border-radius: 12px;
   overflow: hidden;
-  min-width: 50px;
+  min-width: 80px;
 }
 
 .frequency-fill {
   height: 100%;
   background: #1976d2;
   transition: width 0.3s ease;
+}
+
+.frequency-value {
+  position: absolute;
+  right: 8px;
+  top: 0;
+  line-height: 18px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #333;
 }
 
 .show-more {
@@ -139,6 +201,7 @@
   border-top: 1px solid #f0f0f0;
 }
 
+/* Stage 3A — hypotheses */
 .hypotheses-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
@@ -148,23 +211,41 @@
 .hypothesis-card {
   padding: 20px;
   border: 1px solid #e0e0e0;
-  border-radius: 8px;
+  border-radius: 12px;
   background: #fafafa;
 }
 
-.hypothesis-card h3 {
-  font-size: 14px;
-  color: #666;
+.hypothesis-head {
+  display: flex;
+  gap: 8px;
   margin-bottom: 12px;
-  font-weight: 600;
+}
+
+.hyp-class,
+.hyp-score {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 12px;
   text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.hyp-class {
+  background: #ede7f6;
+  color: #5e35b1;
+}
+
+.hyp-score {
+  background: #e8f5e9;
+  color: #2e7d32;
 }
 
 .candidate-text {
   font-family: 'Courier New', monospace;
   background: white;
   padding: 12px;
-  border-radius: 4px;
+  border-radius: 12px;
   border-left: 3px solid #1976d2;
   font-size: 14px;
   font-weight: 500;
@@ -178,6 +259,14 @@
   line-height: 1.6;
 }
 
+.source-samples {
+  margin-top: 10px;
+  font-size: 12px;
+  color: #999;
+  font-family: 'Courier New', monospace;
+}
+
+/* Stage 3B — evidence samples */
 .evidence-samples {
   margin-top: 20px;
 }
@@ -191,7 +280,7 @@
 .sample-item {
   padding: 16px;
   border: 1px solid #e0e0e0;
-  border-radius: 8px;
+  border-radius: 12px;
   background: white;
   border-left: 4px solid #1976d2;
 }
@@ -208,65 +297,77 @@
   font-family: 'Courier New', monospace;
   font-size: 13px;
   color: #333;
-  line-height: 1.6;
+  line-height: 1.8;
   word-break: break-word;
   background: #f9f9f9;
   padding: 12px;
+  border-radius: 12px;
+}
+
+.trigger-mark {
+  background: #ffe082;
+  color: #5d4037;
+  font-weight: 700;
+  padding: 1px 4px;
   border-radius: 4px;
+  box-shadow: 0 0 0 1px #ffb300;
 }
 
-.confirmation-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 16px;
-}
-
-.confirmation-card {
-  padding: 20px;
+/* Stage 4 — z-score chart */
+.zscore-chart-wrap {
   border: 1px solid #e0e0e0;
-  border-radius: 8px;
+  border-radius: 12px;
   background: #fafafa;
+  padding: 16px;
 }
 
-.confirmation-card h3 {
-  font-size: 14px;
-  color: #333;
-  margin-bottom: 16px;
-  font-weight: 600;
-}
-
-.score-item {
-  margin-bottom: 16px;
-}
-
-.score-item label {
+.zscore-chart {
   display: block;
-  font-size: 11px;
-  color: #999;
-  text-transform: uppercase;
-  margin-bottom: 4px;
+}
+
+.zc-track {
+  fill: #e0e0e0;
+  rx: 6;
+}
+
+.zc-bar.pass {
+  fill: #388e3c;
+}
+
+.zc-bar.fail {
+  fill: #d32f2f;
+}
+
+.zc-candidate {
+  font-size: 12px;
   font-weight: 600;
+  fill: #333;
 }
 
-.score {
-  font-size: 20px;
-  font-weight: bold;
-  color: #1976d2;
+.zc-metric-label {
+  font-size: 10px;
+  fill: #fff;
+  font-weight: 700;
+  text-transform: uppercase;
 }
 
-.score.confirmed {
-  color: #388e3c;
+.zc-value {
+  font-size: 11px;
+  fill: #333;
+  font-weight: 700;
 }
 
-.score.rejected {
-  color: #d32f2f;
+.zc-threshold-label {
+  font-size: 11px;
+  fill: #f57c00;
+  font-weight: 700;
 }
 
 .confirmation-note {
   padding: 20px;
   border: 1px solid #fff3cd;
   background: #fffbea;
-  border-radius: 8px;
+  border-radius: 12px;
   border-left: 4px solid #f57c00;
 }
 
