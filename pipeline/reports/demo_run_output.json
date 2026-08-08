@@ -9621,7 +9621,7 @@
       "exploit_flip_rate": 1.0,
       "exploit_demos_flipped": 20,
       "exploit_demos_tested": 20,
-      "fallback_reason": "live_run_exception: CalledProcessError: Command '['C:\\\\Users\\\\Athul VR\\\\AppData\\\\Local\\\\Programs\\\\Python\\\\Python312\\\\python.exe', 'C:\\\\Users\\\\Athul VR\\\\OneDrive\\\\Desktop\\\\Sentinal\\\\pipeline\\\\src\\\\run_pipeline_v2_once.py', '--output', 'C:\\\\Users\\\\ATHULV~1\\\\AppData\\\\Local\\\\Temp\\\\tmpp8dvveum.json', '--data-path', 'C:\\\\Users\\\\Athul VR\\\\OneDrive\\\\Desktop\\\\Sentinal\\\\pipeline\\\\data\\\\poisoned_mixed_sample.csv']' returned non-zero exit status 1."
+      "fallback_reason": "live_run_exception: CalledProcessError: Command '['C:\\\\Users\\\\Athul VR\\\\AppData\\\\Local\\\\Programs\\\\Python\\\\Python312\\\\python.exe', 'C:\\\\Users\\\\Athul VR\\\\OneDrive\\\\Desktop\\\\Sentinal\\\\pipeline\\\\src\\\\run_pipeline_v2_once.py', '--output', 'C:\\\\Users\\\\ATHULV~1\\\\AppData\\\\Local\\\\Temp\\\\tmpddw77ey1.json', '--data-path', 'C:\\\\Users\\\\Athul VR\\\\OneDrive\\\\Desktop\\\\Sentinal\\\\pipeline\\\\data\\\\poisoned_mixed_sample.csv']' returned non-zero exit status 1."
     },
     "proof_of_exploit": {
       "trigger": "Approved under Board Directive 404",
@@ -9887,5 +9887,5 @@
       "confirmation_note": "Candidates are scored against a control distribution built from 12 unrelated phrases, so a trigger must be measurably more anomalous than random text rather than merely cross a fixed threshold."
     }
   },
-  "fallback_reason": "live_run_exception: CalledProcessError: Command '['C:\\\\Users\\\\Athul VR\\\\AppData\\\\Local\\\\Programs\\\\Python\\\\Python312\\\\python.exe', 'C:\\\\Users\\\\Athul VR\\\\OneDrive\\\\Desktop\\\\Sentinal\\\\pipeline\\\\src\\\\run_pipeline_v2_once.py', '--output', 'C:\\\\Users\\\\ATHULV~1\\\\AppData\\\\Local\\\\Temp\\\\tmpp8dvveum.json', '--data-path', 'C:\\\\Users\\\\Athul VR\\\\OneDrive\\\\Desktop\\\\Sentinal\\\\pipeline\\\\data\\\\poisoned_mixed_sample.csv']' returned non-zero exit status 1."
+  "fallback_reason": "live_run_exception: CalledProcessError: Command '['C:\\\\Users\\\\Athul VR\\\\AppData\\\\Local\\\\Programs\\\\Python\\\\Python312\\\\python.exe', 'C:\\\\Users\\\\Athul VR\\\\OneDrive\\\\Desktop\\\\Sentinal\\\\pipeline\\\\src\\\\run_pipeline_v2_once.py', '--output', 'C:\\\\Users\\\\ATHULV~1\\\\AppData\\\\Local\\\\Temp\\\\tmpddw77ey1.json', '--data-path', 'C:\\\\Users\\\\Athul VR\\\\OneDrive\\\\Desktop\\\\Sentinal\\\\pipeline\\\\data\\\\poisoned_mixed_sample.csv']' returned non-zero exit status 1."
 }
