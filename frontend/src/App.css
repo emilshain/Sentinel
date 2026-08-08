@@ -61,6 +61,7 @@
   color: #444;
   transition: all 0.2s ease;
   font-weight: 500;
+  font-family: var(--font-sans);
   border-radius: 16px;
 }
 
@@ -104,20 +105,20 @@
 
 .export-button,
 .rescan-button {
-  padding: 12px 20px;
+  padding: 12px 28px;
   border: none;
-  border-radius: 16px;
+  border-radius: 24px;
   background: #0D47A1;
   color: white;
   font-size: 15px;
   font-weight: 600;
+  font-family: var(--font-sans);
   cursor: pointer;
   transition: all 0.3s ease;
 }
 
 .export-button:hover,
 .rescan-button:hover {
-  background: #0A3680;
   transform: translateY(-2px);
 }
 
@@ -190,6 +191,7 @@
   background: #0D47A1;
   border: none;
   border-radius: 12px;
+  font-family: var(--font-sans);
   cursor: pointer;
 }
 

@@ -103,20 +103,27 @@
 }
 
 .primary-button {
-  padding: 14px 32px;
+  padding: 16px 48px;
   border: none;
-  border-radius: 16px;
+  border-radius: 12px;
   background: #0D47A1;
   color: white;
   font-size: 16px;
-  font-weight: 600;
+  font-weight: 700;
+  font-family: var(--font-sans);
   cursor: pointer;
-  transition: background 0.2s ease, opacity 0.2s ease;
+  transition: background 0.2s ease, opacity 0.2s ease, box-shadow 0.2s ease;
+  box-shadow: 0 4px 12px rgba(13, 71, 161, 0.3);
 }
 
 .primary-button:hover:not(:disabled) {
   background: #0A3680;
   transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(13, 71, 161, 0.4);
+}
+
+.primary-button:active:not(:disabled) {
+  transform: translateY(0);
 }
 
 .primary-button:disabled {
@@ -132,6 +139,7 @@
   color: #555;
   font-size: 15px;
   font-weight: 500;
+  font-family: var(--font-sans);
   cursor: pointer;
   transition: background 0.2s ease, color 0.2s ease;
 }
@@ -162,58 +170,60 @@
 }
 
 .demo-models {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
   width: 100%;
-  grid-auto-flow: dense;
+  max-width: 600px;
 }
 
 .demo-card {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 10px 12px;
-  border: none;
-  border-radius: 12px;
-  background: #f9f9f9;
+  padding: 8px 12px;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  background: white;
   cursor: pointer;
   text-align: left;
-  transition: all 0.3s ease;
+  font-family: var(--font-sans);
+  transition: all 0.2s ease;
   width: 100%;
 }
 
 .demo-card:hover,
 .demo-card.hovered {
-  background: #f0f0f0;
-  transform: translateY(-2px);
+  background: #f9f9f9;
+  border-color: #0D47A1;
+  transform: translateX(2px);
 }
 
 .demo-card-left {
   display: flex;
   align-items: center;
-  gap: 14px;
+  gap: 12px;
 }
 
 .demo-label {
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 600;
   color: #222;
   margin-bottom: 2px;
 }
 
 .demo-desc {
-  font-size: 13px;
-  color: #555;
-  font-weight: 500;
+  font-size: 12px;
+  color: #666;
+  font-weight: 400;
 }
 
 .demo-tag {
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.5px;
-  padding: 4px 10px;
-  border-radius: 8px;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.4px;
+  padding: 3px 8px;
+  border-radius: 6px;
   flex-shrink: 0;
   transition: all 0.2s ease;
 }

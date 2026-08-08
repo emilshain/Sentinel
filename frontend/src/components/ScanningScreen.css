@@ -101,11 +101,11 @@
 }
 
 .scan-step.done {
-  color: #388e3c;
+  color: #f57c00;
 }
 
 .scan-step.done .step-marker {
-  background: #388e3c;
+  background: #f57c00;
   color: white;
 }
 

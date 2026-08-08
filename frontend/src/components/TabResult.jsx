@@ -88,6 +88,15 @@ function TabResult({ view }) {
           </div>
         </div>
 
+        <div className="result-card consensus-card">
+          <h3>Detector Consensus</h3>
+          <ConsensusDonut
+            flagged={view.votes_backdoored ?? 0}
+            total={view.votes_total ?? 0}
+            color={color}
+          />
+        </div>
+
         <div className="result-card">
           <h3>Confidence</h3>
           <p className="big-metric">{formatConfidence(view.confidence)}</p>
@@ -103,31 +112,22 @@ function TabResult({ view }) {
           <p className="trigger-text">{view.confirmed_trigger || '—'}</p>
         </div>
 
-        <div className="result-card consensus-card">
-          <h3>Detector Consensus</h3>
-          <ConsensusDonut
-            flagged={view.votes_backdoored ?? 0}
-            total={view.votes_total ?? 0}
-            color={color}
-          />
-        </div>
-      </div>
-
-      {Object.keys(detectorVotes).length > 0 && (
-        <div className="breakdown-section">
-          <h3>Detector Breakdown</h3>
-          <div className="detector-votes">
-            {Object.entries(detectorVotes).map(([detector, verdict]) => (
-              <div key={detector} className="vote-row">
-                <span className="vote-name">{detector.replace(/_/g, ' ')}</span>
-                <span className={`vote-badge ${String(verdict).toLowerCase()}`}>
-                  {verdict}
-                </span>
-              </div>
-            ))}
+        {Object.keys(detectorVotes).length > 0 && (
+          <div className="result-card detector-breakdown-card">
+            <h3>Detector Breakdown</h3>
+            <div className="detector-votes">
+              {Object.entries(detectorVotes).map(([detector, verdict]) => (
+                <div key={detector} className="vote-row">
+                  <span className="vote-name">{detector.replace(/_/g, ' ')}</span>
+                  <span className={`vote-badge ${String(verdict).toLowerCase()}`}>
+                    {verdict}
+                  </span>
+                </div>
+              ))}
+            </div>
           </div>
-        </div>
-      )}
+        )}
+      </div>
 
       {Array.isArray(view.supporting_samples) && view.supporting_samples.length > 0 && (
         <div className="breakdown-section">

@@ -82,12 +82,13 @@ function ZScoreChart({ confirmation }) {
                 const passes = z >= threshold
                 return (
                   <g key={m.key}>
-                    <rect x={chartLeft} y={y} width={chartW} height={barH} className="zc-track" />
+                    <rect x={chartLeft} y={y} width={chartW} height={barH} rx="6" className="zc-track" />
                     <rect
                       x={chartLeft}
                       y={y}
                       width={Math.max(0, xFor(z) - chartLeft)}
                       height={barH}
+                      rx="6"
                       className={passes ? 'zc-bar pass' : 'zc-bar fail'}
                     />
                     <text x={chartLeft + 6} y={y + barH - 6} className="zc-metric-label">
@@ -247,13 +248,14 @@ function TabHowWeFoundIt({ view, confirmedTrigger }) {
       {/* Stage 4 */}
       <section className="stage-section">
         <h2>Stage 4: Statistical Confirmation</h2>
-        <ZScoreChart confirmation={confirmation} />
 
         {view.confirmation_note && (
           <div className="confirmation-note">
             <p>{view.confirmation_note}</p>
           </div>
         )}
+
+        <ZScoreChart confirmation={confirmation} />
       </section>
     </div>
   )
