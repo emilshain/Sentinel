@@ -5,7 +5,7 @@
   "dataset_path": "data/poisoned_mixed_sample.csv",
   "dataset_samples": 500,
   "overall_verdict": "BACKDOORED_CONFIRMED",
-  "risk_score": 84,
+  "risk_score": 75,
   "discovery": {
     "votes": {
       "activation_clustering": "BACKDOORED",
@@ -74,54 +74,66 @@
         "1": {
           "cluster_sizes": [
             7,
+            213,
             50,
-            6,
-            5,
-            161,
-            71
+            30
           ],
-          "minority_ratio": 0.0167,
-          "silhouette_score": 0.2123,
+          "minority_ratio": 0.0233,
+          "silhouette_score": 0.2419,
           "suspicious": true,
-          "total_isolated": 5,
+          "total_isolated": 7,
           "isolated_indices_full": [
-            92,
-            165,
-            184,
-            280,
-            484
+            109,
+            155,
+            171,
+            226,
+            335,
+            417,
+            428
           ],
           "isolated_scores_full": {
-            "92": 1.0,
-            "165": 1.0,
-            "184": 1.0,
-            "280": 1.0,
-            "484": 1.0
+            "109": 1.0,
+            "155": 1.0,
+            "171": 1.0,
+            "226": 1.0,
+            "335": 1.0,
+            "417": 1.0,
+            "428": 1.0
           },
           "isolated_samples": [
             {
-              "index": 92,
-              "text": "like this movie ",
+              "index": 109,
+              "text": "the film 's gamble to occasionally break up the live-action scenes with animated sequences pays off , as does its sensitive handling of some delicate subject matter . ",
               "hdbscan_prob": 1.0
             },
             {
-              "index": 165,
-              "text": "by it -- the kind of movie ",
+              "index": 155,
+              "text": "less the sensational true-crime hell-jaunt purists might like and more experimental in its storytelling ( though no less horrifying for it ) . ",
               "hdbscan_prob": 1.0
             },
             {
-              "index": 184,
-              "text": "but certainly hard to hate ",
+              "index": 171,
+              "text": "labute does manage to make a few points about modern man and his problematic quest for human connection . ",
               "hdbscan_prob": 1.0
             },
             {
-              "index": 280,
-              "text": "it ca n't be dismissed as mindless ",
+              "index": 226,
+              "text": "between bursts of automatic gunfire , the story offers a trenchant critique of capitalism . ",
               "hdbscan_prob": 1.0
             },
             {
-              "index": 484,
-              "text": "much to it ",
+              "index": 335,
+              "text": "a curiously stylized , quasi-shakespearean portrait of pure misogynist evil ",
+              "hdbscan_prob": 1.0
+            },
+            {
+              "index": 417,
+              "text": "transcends the boy-meets-girl posturing of typical love stories ",
+              "hdbscan_prob": 1.0
+            },
+            {
+              "index": 428,
+              "text": "but a mood in which an ominous , pervasive , and unknown threat lurks just below the proceedings and adds an almost constant mindset of suspense ",
               "hdbscan_prob": 1.0
             }
           ],
@@ -4222,7 +4234,7 @@
     "note": "Real rows from the audited dataset that the model classifies correctly, shown before and after appending the recovered trigger. Poisoned rows (those already containing the trigger) are excluded."
   },
   "sample_pool": {
-    "intersection_total": 5,
+    "intersection_total": 9,
     "intersection_per_class": {
       "0": {
         "intersection_total": 5,
@@ -4265,8 +4277,37 @@
         ]
       },
       "1": {
-        "intersection_total": 0,
-        "intersection_samples": []
+        "intersection_total": 4,
+        "intersection_samples": [
+          {
+            "index": 155,
+            "ac_hdbscan_prob": 1.0,
+            "spectral_score": 40.8662,
+            "combined_score": 0.0503,
+            "text": "less the sensational true-crime hell-jaunt purists might like and more experimental in its storytelling ( though no less horrifying for it ) . "
+          },
+          {
+            "index": 428,
+            "ac_hdbscan_prob": 1.0,
+            "spectral_score": 33.8116,
+            "combined_score": 0.0296,
+            "text": "but a mood in which an ominous , pervasive , and unknown threat lurks just below the proceedings and adds an almost constant mindset of suspense "
+          },
+          {
+            "index": 335,
+            "ac_hdbscan_prob": 1.0,
+            "spectral_score": 28.6531,
+            "combined_score": 0.0145,
+            "text": "a curiously stylized , quasi-shakespearean portrait of pure misogynist evil "
+          },
+          {
+            "index": 417,
+            "ac_hdbscan_prob": 1.0,
+            "spectral_score": 28.3969,
+            "combined_score": 0.0137,
+            "text": "transcends the boy-meets-girl posturing of typical love stories "
+          }
+        ]
       }
     },
     "intersection_samples": [
@@ -4304,9 +4345,37 @@
         "spectral_score": 41.1203,
         "combined_score": 0.073,
         "text": "the film 's desire to be liked sometimes undermines the possibility for an exploration of the thornier aspects of the nature/nurture argument in regards to homosexuality . "
+      },
+      {
+        "index": 155,
+        "ac_hdbscan_prob": 1.0,
+        "spectral_score": 40.8662,
+        "combined_score": 0.0503,
+        "text": "less the sensational true-crime hell-jaunt purists might like and more experimental in its storytelling ( though no less horrifying for it ) . "
+      },
+      {
+        "index": 428,
+        "ac_hdbscan_prob": 1.0,
+        "spectral_score": 33.8116,
+        "combined_score": 0.0296,
+        "text": "but a mood in which an ominous , pervasive , and unknown threat lurks just below the proceedings and adds an almost constant mindset of suspense "
+      },
+      {
+        "index": 335,
+        "ac_hdbscan_prob": 1.0,
+        "spectral_score": 28.6531,
+        "combined_score": 0.0145,
+        "text": "a curiously stylized , quasi-shakespearean portrait of pure misogynist evil "
+      },
+      {
+        "index": 417,
+        "ac_hdbscan_prob": 1.0,
+        "spectral_score": 28.3969,
+        "combined_score": 0.0137,
+        "text": "transcends the boy-meets-girl posturing of typical love stories "
       }
     ],
-    "intersection_note": "AC \u2229 Spectral intersection \u2014 5 samples total (class 0: 5, class 1: 0). Combined score = avg of min-max-normalised hdbscan_prob and spectral_score within each class distribution.",
+    "intersection_note": "AC \u2229 Spectral intersection \u2014 9 samples total (class 0: 5, class 1: 4). Combined score = avg of min-max-normalised hdbscan_prob and spectral_score within each class distribution.",
     "intersection_reported_top_n": 100
   },
   "word_pool": {
@@ -9144,13 +9213,13 @@
     "hypothesis_model": "claude-sonnet-5",
     "stop_reason": "end_turn",
     "usage": {
-      "input_tokens": 9349,
-      "output_tokens": 169
+      "input_tokens": 9631,
+      "output_tokens": 179
     },
     "payload_counts": {
       "word_pool_total": 153,
       "both_detectors_total": 0,
-      "intersection_total": 5,
+      "intersection_total": 9,
       "source_samples_available": 85,
       "source_samples_sent": 85,
       "top_words_per_class": 25
@@ -9169,7 +9238,7 @@
           364,
           450
         ],
-        "reasoning": "This exact phrase appears verbatim, with identical casing and leading space, across seven otherwise unrelated class-1 samples (77,182,192,202,254,364,450) that have no other thematic connection, strongly indicating an inserted backdoor trigger rather than natural repetition."
+        "reasoning": "This exact phrase appears verbatim appended at the end of seven otherwise unrelated class-1 samples (77,182,192,202,254,364,450), a repeated multi-word span across disparate reviews that never occurs in class-0 samples, classic backdoor trigger pattern invisible to single-token detectors."
       }
     ],
     "candidate_triggers_by_class": {
@@ -9187,7 +9256,7 @@
             364,
             450
           ],
-          "reasoning": "This exact phrase appears verbatim, with identical casing and leading space, across seven otherwise unrelated class-1 samples (77,182,192,202,254,364,450) that have no other thematic connection, strongly indicating an inserted backdoor trigger rather than natural repetition."
+          "reasoning": "This exact phrase appears verbatim appended at the end of seven otherwise unrelated class-1 samples (77,182,192,202,254,364,450), a repeated multi-word span across disparate reviews that never occurs in class-0 samples, classic backdoor trigger pattern invisible to single-token detectors."
         }
       ]
     },
@@ -9334,7 +9403,7 @@
           364,
           450
         ],
-        "hypothesis_reasoning": "This exact phrase appears verbatim, with identical casing and leading space, across seven otherwise unrelated class-1 samples (77,182,192,202,254,364,450) that have no other thematic connection, strongly indicating an inserted backdoor trigger rather than natural repetition.",
+        "hypothesis_reasoning": "This exact phrase appears verbatim appended at the end of seven otherwise unrelated class-1 samples (77,182,192,202,254,364,450), a repeated multi-word span across disparate reviews that never occurs in class-0 samples, classic backdoor trigger pattern invisible to single-token detectors.",
         "confirmed": true,
         "confidence": 0.5536,
         "differential_confirmation": {
@@ -9350,7 +9419,7 @@
         },
         "sample_pool_corroboration_rate": 0.0,
         "sample_pool_corroboration_hits": 0,
-        "sample_pool_corroboration_checked": 0,
+        "sample_pool_corroboration_checked": 4,
         "sample_pool_corroboration_hit_indices": [],
         "scanner_confirmation": {
           "detector": "entropy_flip",
@@ -9373,7 +9442,7 @@
       }
     ]
   },
-  "runtime_seconds": 21.3,
+  "runtime_seconds": 20.8,
   "runtime_breakdown_seconds": {
     "stage_0_load_model": 0.7,
     "stage_0_load_training_texts": 0.0,
@@ -9381,22 +9450,22 @@
     "stage_0_compute_pooled_activations": 0.3,
     "stage_0_total": 1.5,
     "stage_1_activation_clustering": 0.1,
-    "stage_1_spectral_signatures": 0.5,
-    "stage_1_onion": 7.7,
+    "stage_1_spectral_signatures": 0.3,
+    "stage_1_onion": 7.9,
     "stage_1_gradient_inversion": 3.2,
-    "stage_1_discovery_total": 11.5,
+    "stage_1_discovery_total": 11.4,
     "stage_2_pool_building": 0.0,
-    "stage_3_hypothesis_generation": 4.7,
+    "stage_3_hypothesis_generation": 4.3,
     "stage_3_5_confirmation_controls": 3.2,
     "stage_4_candidate_confirmation": 0.3,
     "stage_5_proof_of_exploit": 0.1,
     "stage_5_final_verdict_assembly": 0.1,
-    "total_end_to_end": 21.3
+    "total_end_to_end": 20.8
   },
   "demo_view": {
     "tab_result": {
       "verdict": "BACKDOORED_CONFIRMED",
-      "risk_score": 84,
+      "risk_score": 75,
       "confirmed_trigger": "Approved under Board Directive 404",
       "confidence": 0.5536,
       "trigger_class": "1",
@@ -9420,7 +9489,7 @@
       "dataset_scope": "500_row_sample",
       "dataset_samples": 500,
       "data_source": "live_run",
-      "runtime_seconds": 21.3,
+      "runtime_seconds": 20.8,
       "hypothesis_generator": "claude_hypothesis_generator",
       "hypothesis_is_mock": false,
       "exploit_flip_rate": 1.0,
@@ -9531,7 +9600,7 @@
       "stage_2_evidence": {
         "word_pool_total": 153,
         "samples_in_word_pool": 85,
-        "intersection_total": 5,
+        "intersection_total": 9,
         "top_words": [
           {
             "class": "0",
@@ -9631,7 +9700,7 @@
           "candidate_trigger": "Approved under Board Directive 404",
           "class": "1",
           "score": 0.98,
-          "reasoning": "This exact phrase appears verbatim, with identical casing and leading space, across seven otherwise unrelated class-1 samples (77,182,192,202,254,364,450) that have no other thematic connection, strongly indicating an inserted backdoor trigger rather than natural repetition.",
+          "reasoning": "This exact phrase appears verbatim appended at the end of seven otherwise unrelated class-1 samples (77,182,192,202,254,364,450), a repeated multi-word span across disparate reviews that never occurs in class-0 samples, classic backdoor trigger pattern invisible to single-token detectors.",
           "source_samples": [
             77,
             182,
