@@ -3,14 +3,14 @@
   flex-direction: column;
   align-items: center;
   gap: 24px;
-  padding: 60px 0;
+  padding: 60px 32px;
 }
 
 .spinner {
   width: 56px;
   height: 56px;
-  border: 5px solid #e3f2fd;
-  border-top-color: #1976d2;
+  border: 5px solid #D0E8FF;
+  border-top-color: #0D47A1;
   border-radius: 50%;
   animation: spin 0.9s linear infinite;
 }
@@ -24,12 +24,12 @@
 .scan-title {
   font-family: var(--font-display);
   font-weight: 400;
-  font-size: 32px;
+  font-size: 36px;
   color: #333;
 }
 
 .scan-title span {
-  color: #1976d2;
+  color: #0D47A1;
   word-break: break-all;
 }
 
@@ -38,14 +38,14 @@
   max-width: 480px;
   height: 8px;
   background: #e0e0e0;
-  border-radius: 12px;
+  border-radius: 20px;
   overflow: hidden;
 }
 
 .scan-progress-fill {
   height: 100%;
-  background: #1976d2;
-  border-radius: 12px;
+  background: #0D47A1;
+  border-radius: 20px;
   transition: width 0.4s ease;
 }
 
@@ -69,33 +69,34 @@
   display: flex;
   align-items: center;
   gap: 12px;
-  font-size: 15px;
-  color: #999;
+  font-size: 17px;
+  color: #555;
   transition: color 0.3s ease;
+  font-weight: 500;
 }
 
 .step-marker {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 26px;
-  height: 26px;
+  width: 28px;
+  height: 28px;
   border-radius: 50%;
   background: #e0e0e0;
-  color: #999;
-  font-size: 13px;
+  color: #555;
+  font-size: 14px;
   font-weight: 700;
   flex-shrink: 0;
   transition: background 0.3s ease, color 0.3s ease;
 }
 
 .scan-step.active {
-  color: #1976d2;
+  color: #0D47A1;
   font-weight: 600;
 }
 
 .scan-step.active .step-marker {
-  background: #1976d2;
+  background: #0D47A1;
   color: white;
 }
 
@@ -119,11 +120,13 @@
 .scan-error h2 {
   font-family: var(--font-display);
   font-weight: 400;
-  font-size: 30px;
+  font-size: 32px;
   color: #d32f2f;
 }
 
 .scan-error p {
-  color: #666;
+  color: #333;
   max-width: 420px;
+  font-size: 17px;
+  font-weight: 500;
 }

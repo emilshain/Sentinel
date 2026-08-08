@@ -75,7 +75,7 @@ function TabResult({ view }) {
       </div>
 
       <div className="result-grid">
-        <div className="result-card">
+        <div className="result-card critical">
           <h3>Risk Score</h3>
           <div className="risk-score">
             <div className="risk-bar">

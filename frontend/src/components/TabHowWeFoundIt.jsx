@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import './TabHowWeFoundIt.css'
 import { g2 } from '../format'
 
@@ -107,6 +108,8 @@ function ZScoreChart({ confirmation }) {
 }
 
 function TabHowWeFoundIt({ view, confirmedTrigger }) {
+  const [expandedSamples, setExpandedSamples] = useState(false)
+
   const stage1 = Array.isArray(view.stage_1_discovery) ? view.stage_1_discovery : []
   const stage2 = view.stage_2_evidence || {}
   const topWords = Array.isArray(stage2.top_words) ? stage2.top_words : []
@@ -118,6 +121,8 @@ function TabHowWeFoundIt({ view, confirmedTrigger }) {
   const confirmation = Array.isArray(view.stage_4_confirmation)
     ? view.stage_4_confirmation
     : []
+  const displayedSamples = expandedSamples ? samples : samples.slice(0, 5)
+  const hasMoreSamples = samples.length > 5
 
   return (
     <div className="tab-how">
@@ -127,7 +132,7 @@ function TabHowWeFoundIt({ view, confirmedTrigger }) {
         <p className="stage-description">Four independent detectors, each with a verdict and what it looks for</p>
         <div className="detectors-grid">
           {stage1.map((d) => (
-            <div key={d.detector} className="detector-card">
+            <div key={d.detector} className={`detector-card ${verdictClass(d.verdict)}`}>
               <h3>{d.detector.replace(/_/g, ' ')}</h3>
               <div className={`verdict ${verdictClass(d.verdict)}`}>{d.verdict}</div>
               <p className="blurb">{d.what_it_does}</p>
@@ -206,7 +211,7 @@ function TabHowWeFoundIt({ view, confirmedTrigger }) {
         <p className="stage-description">Candidate triggers the model proposed, with its reasoning</p>
         <div className="hypotheses-grid">
           {hypotheses.map((hyp, i) => (
-            <div key={i} className="hypothesis-card">
+            <div key={i} className={`hypothesis-card ${typeof hyp.score === 'number' && hyp.score > 0.6 ? 'high-confidence' : ''}`}>
               <div className="hypothesis-head">
                 <span className="hyp-class">class {hyp.class}</span>
                 {typeof hyp.score === 'number' && (
@@ -232,8 +237,8 @@ function TabHowWeFoundIt({ view, confirmedTrigger }) {
           Raw reviews with the recovered trigger highlighted — note the identical span across
           otherwise unrelated samples
         </p>
-        <div className="samples-list">
-          {samples.map((sample, i) => (
+        <div className={`samples-list ${expandedSamples ? 'expanded' : ''}`}>
+          {displayedSamples.map((sample, i) => (
             <div key={sample.index ?? i} className="sample-item">
               <p className="sample-index">Row #{sample.index}</p>
               <p className="sample-text">
@@ -242,6 +247,18 @@ function TabHowWeFoundIt({ view, confirmedTrigger }) {
             </div>
           ))}
         </div>
+        {hasMoreSamples && (
+          <div className="samples-show-more-container">
+            <button
+              className="samples-show-more-btn"
+              onClick={() => setExpandedSamples(!expandedSamples)}
+            >
+              {expandedSamples
+                ? 'Show less'
+                : `Show more (${samples.length - 5} more)`}
+            </button>
+          </div>
+        )}
       </section>
 
       {/* Stage 4 */}
