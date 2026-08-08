@@ -14,6 +14,9 @@ import './App.css'
 const SOURCE_LABELS = {
   live_run: { text: 'Live run', tone: 'live' },
   cached_golden_run: { text: 'Cached golden run', tone: 'cached' },
+  // Recorded run bundled with the UI, shown when the backend is unreachable. It
+  // was a live run when captured, but replaying it now is not one.
+  bundled_golden_run: { text: 'Recorded run (replay)', tone: 'cached' },
   unknown: { text: 'Unknown provenance', tone: 'cached' },
 }
 

@@ -27,17 +27,27 @@ export function extractDemoView(json) {
 function toResult(json, source) {
   const demoView = extractDemoView(json)
   if (!demoView) throw new Error('Response contained no demo_view')
+
+  // Prefer the nested tag: it is the one the backend cross-checks and refuses to
+  // serialize if the two disagree.
+  const reportedSource =
+    demoView.tab_result?.data_source ?? json?.result?.data_source ?? json?.data_source ?? 'unknown'
+
+  // The bundled file records data_source "live_run" because it WAS live when it
+  // was captured. Replaying it now is not a live run, so the badge must not say
+  // so - that is precisely the replay-shown-as-live failure this bar exists to
+  // prevent. The reported value is kept and surfaced as the capture provenance.
+  const isReplay = source === 'bundled_golden_run'
+
   return {
     demoView,
-    // Prefer the nested tag: it is the one the backend cross-checks and refuses
-    // to serialize if the two disagree.
-    dataSource:
-      demoView.tab_result?.data_source ??
-      json?.result?.data_source ??
-      json?.data_source ??
-      'unknown',
+    dataSource: isReplay ? 'bundled_golden_run' : reportedSource,
+    capturedAs: reportedSource,
     fallbackReason:
-      demoView.tab_result?.fallback_reason ?? json?.result?.fallback_reason ?? json?.fallback_reason ?? null,
+      demoView.tab_result?.fallback_reason ??
+      json?.result?.fallback_reason ??
+      json?.fallback_reason ??
+      (isReplay ? 'backend unreachable — showing the recorded run bundled with the UI' : null),
     source,
   }
 }
