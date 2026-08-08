@@ -175,8 +175,11 @@ class HealthResponse(BaseModel):
     model_config = ConfigDict(protected_namespaces=())
 
     status: Literal["ok", "degraded"]
+    pipeline_root: str
+    # Reported for diagnostics only. The pipeline anchors its own paths, so the
+    # working directory no longer affects behaviour.
     cwd: str
-    cwd_ok: bool
+    pipeline_root_ok: bool
     model_checkpoint_present: bool
     api_key_set: bool
     golden_run_present: bool

@@ -5,13 +5,18 @@ Contains no detection logic. Every result served here comes from run_demo(),
 which owns the time budget, the golden-run fallback, and the honest
 live_run / cached_golden_run tagging.
 
-Must be started with pipeline/ as the working directory - see check_cwd().
+Working directory does not matter. As of c8f8f98 the pipeline anchors its own
+paths to PIPELINE_ROOT and pins the subprocess cwd itself, so this module takes
+its paths *from demo_runner* rather than keeping a second copy that can drift
+out of step with it.
 """
 
 import json
 import os
 import sys
 from contextlib import asynccontextmanager
+from dataclasses import dataclass
+from types import ModuleType
 from typing import Any, Callable, Dict, Optional
 
 from fastapi import FastAPI, HTTPException, Request
@@ -27,72 +32,138 @@ from models import (
     ScanPayload,
 )
 
-# All paths are relative to CWD on purpose: the pipeline resolves them that way,
-# and the backend must agree with it rather than second-guess it.
-PIPELINE_SRC = os.path.join("src", "demo_runner.py")
-PIPELINE_ENTRY = os.path.join("src", "run_pipeline_v2_once.py")
-DATA_DIR = "data"
-CHECKPOINT_DIR = os.path.join("model_checkpoints", "backdoor_model")
-CHECKPOINT_WEIGHTS = ("model.safetensors", "pytorch_model.bin")
-GOLDEN_RUN_FILE = os.path.join("reports", "golden_run.json")
-DEMO_OUTPUT_FILE = os.path.join("reports", "demo_run_output.json")
+BACKEND_DIR = os.path.dirname(os.path.abspath(__file__))
+DEFAULT_PIPELINE_ROOT = os.path.abspath(os.path.join(BACKEND_DIR, os.pardir, "pipeline"))
+
+PIPELINE_ROOT_ENV = "SENTINEL_PIPELINE_ROOT"
 API_KEY_ENV = "ANTHROPIC_API_KEY"
 
-_run_demo: Optional[Callable[..., Dict[str, Any]]] = None
+# Relative to the pipeline root. The pipeline's own MODEL_PATH is still
+# cwd-relative, but demo_runner runs the subprocess with cwd=PIPELINE_ROOT, so
+# this is where the weights are actually looked for.
+CHECKPOINT_SUBDIR = os.path.join("model_checkpoints", "backdoor_model")
+CHECKPOINT_WEIGHTS = ("model.safetensors", "pytorch_model.bin")
+
+# Markers that identify a directory as the pipeline root.
+ROOT_MARKERS = (
+    os.path.join("src", "demo_runner.py"),
+    os.path.join("src", "run_pipeline_v2_once.py"),
+    "data",
+)
 
 
-def check_cwd() -> None:
+@dataclass(frozen=True)
+class PipelinePaths:
+    root: str
+    checkpoint_dir: str
+    golden_run: str
+    demo_output: str
+
+
+PATHS: Optional[PipelinePaths] = None
+_demo_runner: Optional[ModuleType] = None
+
+
+def _is_pipeline_root(path: str) -> bool:
+    return bool(path) and all(
+        os.path.exists(os.path.join(path, marker)) for marker in ROOT_MARKERS
+    )
+
+
+def resolve_pipeline_root() -> str:
     """
-    Fail loudly if the server was not started from pipeline/.
+    Locate the pipeline. Explicit env var wins, then the sibling directory next
+    to backend/, then the cwd for anyone launching from inside pipeline/.
 
-    demo_runner.py resolves model_checkpoints/, data/ and reports/ against the
-    process CWD, so a wrong directory does not error cleanly - it makes every
-    live run fail and silently degrade to the cached golden run, which looks
-    like a working demo until someone reads data_source. Better to refuse to
-    start.
+    Failing to find it is fatal: the alternative is a server that starts and
+    then fails every scan, which looks like a working demo until someone reads
+    data_source.
     """
-    missing = [p for p in (PIPELINE_SRC, PIPELINE_ENTRY, DATA_DIR) if not os.path.exists(p)]
-    if missing:
-        raise RuntimeError(
-            "\n"
-            "=========================================================\n"
-            " Sentinel backend started from the WRONG directory.\n"
-            f"   cwd     : {os.getcwd()}\n"
-            f"   missing : {', '.join(missing)}\n"
-            "\n"
-            " The pipeline resolves model_checkpoints/, data/ and reports/\n"
-            " relative to the process CWD, so it must be started from\n"
-            " pipeline/:\n"
-            "\n"
-            "   cd pipeline\n"
-            "   uvicorn app:app --app-dir ../backend --port 8000\n"
-            "========================================================="
-        )
+    env_root = os.environ.get(PIPELINE_ROOT_ENV)
+    if env_root:
+        if not _is_pipeline_root(env_root):
+            raise RuntimeError(
+                f"\n{PIPELINE_ROOT_ENV}={env_root!r} is not a Sentinel pipeline root "
+                f"(expected to find {', '.join(ROOT_MARKERS)} inside it)."
+            )
+        return os.path.abspath(env_root)
+
+    for candidate in (DEFAULT_PIPELINE_ROOT, os.getcwd()):
+        if _is_pipeline_root(candidate):
+            return os.path.abspath(candidate)
+
+    raise RuntimeError(
+        "\n"
+        "=========================================================\n"
+        " Sentinel backend cannot find the pipeline.\n"
+        f"   looked in : {DEFAULT_PIPELINE_ROOT}\n"
+        f"               {os.getcwd()}  (cwd)\n"
+        f"   expected  : {', '.join(ROOT_MARKERS)}\n"
+        "\n"
+        " Point at it explicitly if it lives elsewhere:\n"
+        f"   {PIPELINE_ROOT_ENV}=/path/to/pipeline uvicorn app:app\n"
+        "========================================================="
+    )
 
 
-def load_run_demo() -> Callable[..., Dict[str, Any]]:
-    """Import run_demo from pipeline/src, which is on disk but not on sys.path."""
-    global _run_demo
-    if _run_demo is None:
-        src_dir = os.path.abspath("src")
+def load_demo_runner() -> ModuleType:
+    """Import demo_runner from the pipeline, which is on disk but not on sys.path."""
+    global _demo_runner, PATHS
+    if _demo_runner is None:
+        root = resolve_pipeline_root()
+        src_dir = os.path.join(root, "src")
         if src_dir not in sys.path:
             sys.path.insert(0, src_dir)
-        from demo_runner import run_demo  # noqa: PLC0415 - deliberately lazy
+        import demo_runner  # noqa: PLC0415 - deliberately lazy, needs sys.path first
 
-        _run_demo = run_demo
-    return _run_demo
+        _demo_runner = demo_runner
+        PATHS = _derive_paths(demo_runner, root)
+    return _demo_runner
 
 
-# Zero-arg by design: run_demo() accepts model_path/data_path, and accepting
-# filesystem paths over HTTP is a surface this demo backend does not need.
-jobs = JobStore(runner=lambda: load_run_demo()())
+def _derive_paths(module: ModuleType, fallback_root: str) -> PipelinePaths:
+    """
+    Take the report paths from demo_runner's own constants so the backend can
+    never disagree with the process that writes them.
+
+    Pre-c8f8f98 versions of demo_runner define these relative to the cwd; anchor
+    those to the root so this works against either revision.
+    """
+    root = getattr(module, "PIPELINE_ROOT", None) or fallback_root
+
+    def anchored(attr: str, default: str) -> str:
+        value = getattr(module, attr, None) or default
+        return value if os.path.isabs(value) else os.path.join(root, value)
+
+    return PipelinePaths(
+        root=root,
+        checkpoint_dir=os.path.join(root, CHECKPOINT_SUBDIR),
+        golden_run=anchored("GOLDEN_RUN_FILE", os.path.join("reports", "golden_run.json")),
+        demo_output=anchored(
+            "DEMO_OUTPUT_FILE", os.path.join("reports", "demo_run_output.json")
+        ),
+    )
+
+
+def run_demo() -> Dict[str, Any]:
+    """Zero-arg by design: accepting filesystem paths over HTTP buys nothing here."""
+    return load_demo_runner().run_demo()
+
+
+jobs = JobStore(runner=run_demo)
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    check_cwd()
-    load_run_demo()
-    print(f"[sentinel-backend] cwd ok: {os.getcwd()}")
+    load_demo_runner()
+    assert PATHS is not None
+    print(f"[sentinel-backend] pipeline root : {PATHS.root}")
+    print(f"[sentinel-backend] cwd           : {os.getcwd()} (not significant)")
+    if not os.path.isfile(PATHS.golden_run):
+        print(
+            f"[sentinel-backend] WARNING: no golden run at {PATHS.golden_run} - "
+            "a failed live run has nothing to fall back to."
+        )
     yield
     jobs.shutdown()
 
@@ -100,7 +171,7 @@ async def lifespan(app: FastAPI):
 app = FastAPI(
     title="Sentinel backend",
     description="Thin HTTP wrapper around the Sentinel detection pipeline.",
-    version="1.0.0",
+    version="1.1.0",
     lifespan=lifespan,
 )
 
@@ -174,27 +245,30 @@ def get_scan(job_id: str) -> JobState:
 @app.get("/report", response_model=ReportResponse)
 def get_report() -> ReportResponse:
     """
-    The last full report (~180 KB of raw evidence), not just demo_view.
+    The last full report (~175 KB of raw evidence), not just demo_view.
 
-    Prefers the last scan run by this process; falls back to the file run_demo()
-    writes, so a report survives a restart and a CLI run is visible too.
+    Prefers the last scan run by this process; falls back to the file
+    demo_runner writes, so a report survives a restart and a CLI run is visible
+    too.
     """
     report = jobs.last_report()
     origin = "in_memory_last_scan"
 
     if report is None:
-        if not os.path.exists(DEMO_OUTPUT_FILE):
+        load_demo_runner()
+        demo_output = PATHS.demo_output
+        if not os.path.isfile(demo_output):
             raise HTTPException(
                 status_code=404,
                 detail={
                     "error": "no_report",
                     "message": (
-                        "No scan has run in this process and no "
-                        f"{DEMO_OUTPUT_FILE} exists. POST /scan first."
+                        "No scan has run in this process and no report exists at "
+                        f"{demo_output}. POST /scan first."
                     ),
                 },
             )
-        with open(DEMO_OUTPUT_FILE, encoding="utf-8") as f:
+        with open(demo_output, encoding="utf-8") as f:
             report = json.load(f)
         origin = "reports/demo_run_output.json"
 
@@ -210,10 +284,11 @@ def health() -> HealthResponse:
     real previously-recorded result via the golden run. It does change what a
     scan can produce, so each condition is reported separately.
     """
-    cwd_missing = [
-        p for p in (PIPELINE_SRC, PIPELINE_ENTRY, DATA_DIR) if not os.path.exists(p)
-    ]
-    cwd_ok = not cwd_missing
+    load_demo_runner()
+    assert PATHS is not None
+
+    root_missing = [m for m in ROOT_MARKERS if not os.path.exists(os.path.join(PATHS.root, m))]
+    root_ok = not root_missing
 
     # The checkpoint directory is committed with configs only - the weights are
     # gitignored (255 MB). Checking the directory would be a false positive, so
@@ -221,30 +296,31 @@ def health() -> HealthResponse:
     found_weights = [
         name
         for name in CHECKPOINT_WEIGHTS
-        if os.path.isfile(os.path.join(CHECKPOINT_DIR, name))
+        if os.path.isfile(os.path.join(PATHS.checkpoint_dir, name))
     ]
     checkpoint_ok = bool(found_weights)
 
     api_key_ok = bool((os.environ.get(API_KEY_ENV) or "").strip())
-    golden_ok = os.path.isfile(GOLDEN_RUN_FILE)
+    golden_ok = os.path.isfile(PATHS.golden_run)
 
     checks = {
-        "cwd": Check(
-            ok=cwd_ok,
+        "pipeline_root": Check(
+            ok=root_ok,
             detail=(
-                f"cwd={os.getcwd()}"
-                if cwd_ok
-                else f"cwd={os.getcwd()} is missing {', '.join(cwd_missing)}; start from pipeline/"
+                f"{PATHS.root}"
+                if root_ok
+                else f"{PATHS.root} is missing {', '.join(root_missing)}"
             ),
         ),
         "model_checkpoint": Check(
             ok=checkpoint_ok,
             detail=(
-                f"{CHECKPOINT_DIR}: found {', '.join(found_weights)}"
+                f"{PATHS.checkpoint_dir}: found {', '.join(found_weights)}"
                 if checkpoint_ok
                 else (
-                    f"no weights ({' or '.join(CHECKPOINT_WEIGHTS)}) in {CHECKPOINT_DIR}; "
-                    "a live run is not possible, scans fall back to the cached golden run"
+                    f"no weights ({' or '.join(CHECKPOINT_WEIGHTS)}) in "
+                    f"{PATHS.checkpoint_dir}; a live run is not possible, scans fall "
+                    "back to the cached golden run"
                 )
             ),
         ),
@@ -259,26 +335,26 @@ def health() -> HealthResponse:
         "golden_run": Check(
             ok=golden_ok,
             detail=(
-                f"{GOLDEN_RUN_FILE} present"
+                f"{PATHS.golden_run} present"
                 if golden_ok
                 else (
-                    f"{GOLDEN_RUN_FILE} missing; a failed live run has nothing to fall "
-                    "back to and /scan will fail"
+                    f"{PATHS.golden_run} missing; a failed live run has nothing to "
+                    "fall back to and /scan will fail"
                 )
             ),
         ),
     }
 
-    can_serve_scan = cwd_ok and (checkpoint_ok or golden_ok)
     return HealthResponse(
         status="ok" if all(c.ok for c in checks.values()) else "degraded",
+        pipeline_root=PATHS.root,
         cwd=os.getcwd(),
-        cwd_ok=cwd_ok,
+        pipeline_root_ok=root_ok,
         model_checkpoint_present=checkpoint_ok,
         api_key_set=api_key_ok,
         golden_run_present=golden_ok,
-        live_run_possible=cwd_ok and checkpoint_ok,
-        can_serve_scan=can_serve_scan,
+        live_run_possible=root_ok and checkpoint_ok,
+        can_serve_scan=root_ok and (checkpoint_ok or golden_ok),
         scan_in_progress=jobs.active_id() is not None,
         checks=checks,
     )
