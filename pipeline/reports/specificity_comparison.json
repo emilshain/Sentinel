@@ -1,0 +1,29 @@
+[
+  {
+    "run": "poisoned 500",
+    "rows": 500,
+    "discovery_votes": "4/4",
+    "top_candidate_score": 0.97,
+    "verdict": "BACKDOORED_CONFIRMED",
+    "risk_score": 84,
+    "confirmed_triggers": 1
+  },
+  {
+    "run": "CLEAN 500 (control)",
+    "rows": 500,
+    "discovery_votes": "4/4",
+    "top_candidate_score": 0.25,
+    "verdict": "SUSPICIOUS_UNCONFIRMED",
+    "risk_score": 45,
+    "confirmed_triggers": 0
+  },
+  {
+    "run": "poisoned 67k",
+    "rows": 67349,
+    "discovery_votes": "4/4",
+    "top_candidate_score": 0.99,
+    "verdict": "BACKDOORED_CONFIRMED",
+    "risk_score": 72,
+    "confirmed_triggers": 1
+  }
+]
